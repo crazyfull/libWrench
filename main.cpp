@@ -66,13 +66,14 @@ static void onThread1(clsThread *pTherad, void* pArg){
 
 int main(int ac, char **av)
 {
-    int a = 65535*65000;
-    if(a > 0){
-        LOG("MAX_CONNECTIONE_ALIVE %u\n", a);
 
+    if(FileDirectory::CreateDirectory("gooz")){
+        LOG("CreateDirectory OK");
+
+    }else{
+        LOG("CreateDirectory failed");
     }
 
-    LOG("aaa %d\n", a);
     return 0;
 
 
