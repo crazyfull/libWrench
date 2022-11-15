@@ -684,6 +684,12 @@ CString & CString::operator + (const CString &other)
     this->append(other.Data());
     return *this;
 }
+CString & CString::operator + (const CString *other)
+{
+    //printf("operator+\n");
+    this->append(other->Data());
+    return *this;
+}
 
 CString &CString::operator << (const char *text)
 {

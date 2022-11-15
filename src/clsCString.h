@@ -34,6 +34,7 @@ public:
     CString &operator << (int Number);
 
     CString &operator +(const CString &other);
+    CString &operator +(const CString *other);
     const char* operator + (const char *text);
 
     void Reset(bool setZeroBuffer = false);
