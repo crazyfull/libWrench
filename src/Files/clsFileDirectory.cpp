@@ -31,6 +31,14 @@ FileDirectory::FileDirectory()
 
 }
 
+bool FileDirectory::CreateDirectory(const char *FolderName)
+{
+    if(mkdir(FolderName, 0777) == 0){
+        return true;
+    }
+    return false;
+}
+
 char *FileDirectory::GetFileNameExtension(const CString * FilePath){
     return  GetFileNameExtension(FilePath->Data(), FilePath->length());
 }

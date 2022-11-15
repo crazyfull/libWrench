@@ -19,6 +19,7 @@ class FileDirectory
 {
 public:
     FileDirectory();
+    static bool CreateDirectory(const char *FolderName);
     static bool isExistDirOrFile(const char *FilePath);
     static bool isDirectory(const char *path);
     static long GetFileSize(const char *FilePath);
