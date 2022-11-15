@@ -135,6 +135,13 @@ bool CString::isCompare(const CString *dest)
     return isCompare(dest->Data(), dest->length());
 }
 
+bool CString::isCompare(const CString *dest) const
+{
+    if(!dest)
+        return false;
+    return isCompare(dest->Data(), dest->length());
+}
+
 bool CString::isCompare(const char *dest)
 {
     if(!dest)

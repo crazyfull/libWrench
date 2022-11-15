@@ -62,6 +62,7 @@ public:
     bool isCompare(const char *dest, int destSize);
     bool isCompare(const char *dest, int destSize) const;
     bool isCompare(const CString *dest);
+    bool isCompare(const CString *dest) const;
     bool isCompare(const char *dest);
     bool isCompare(const char *dest) const;
 
