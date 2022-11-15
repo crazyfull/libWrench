@@ -23,6 +23,7 @@ public:
     CString(const int Number);
     CString(const char *text);
     CString &operator = (const CString &other);
+    CString &operator = (const CString *other);
     CString &operator = (const char *text);
     CString &operator = (int Number);
     CString &operator += (const char *text);

@@ -614,6 +614,16 @@ CString &CString::operator = (const CString &other) //assignment operator
     return *this;
 }
 
+CString &CString::operator = (const CString *other){
+    if(other){
+        if (this != other) {
+            Free();
+            this->append(other->Data(), other->length());
+        }
+    }
+    return *this;
+}
+
 bool CString::operator == (const char *text)
 {
     //printf("operator== %s\n", text);
