@@ -905,7 +905,7 @@ void clsTCPSocket::Close(bool isShutdown)
 
     if(isShutdown == true)
     {
-        shutdown(m_socket, SHUT_RD);
+        shutdown(m_socket, SHUT_WR);//SHUT_RDWR
         //LOG("shutdown, sock:[%d]", m_socket);
     }else{
         //remove of epoll manager
