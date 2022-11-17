@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <pthread.h> //thread
+#include <sys/types.h>
 
 
 class CString
@@ -44,7 +45,7 @@ public:
     void append(const uint8_t* data, uint16_t dataLength);
     void append(const char* data, int dataLengh);
     void append(const char* data);
-    void append(int Number);
+    void append(uint32_t Number);
     void append(const CString &data);
     void append(const CString* data);
     bool Copy(int32_t index, const void *Source, int32_t SourceSize);

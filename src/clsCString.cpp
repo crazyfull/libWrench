@@ -753,17 +753,16 @@ void CString::append(const char* data)
     }
 }
 
-void CString::append(int Number)
+void CString::append(uint32_t Number)
 {
-    char res[12];
+    char res[12] = {0};
     memset(res, 0, sizeof(res));
-    int resSize = sprintf(res, "%d", Number);
+    int resSize = sprintf(res, "%u", Number);
     //printf("append: %s , %u\n", res2, tt);
     if(resSize > 0)
     {
         this->append(res, resSize);
     }
-
 }
 
 void CString::append(const CString &data)
