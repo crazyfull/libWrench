@@ -58,6 +58,11 @@ void clsTCPSocket::OnClosed()
     //delete this;
 }
 
+void clsTCPSocket::OnSendFileComplete()
+{
+//
+}
+
 
 int clsTCPSocket::GetSocket() const
 {
@@ -839,6 +844,7 @@ void clsTCPSocket::ResumeSendFile()
             //Close(true);
             //m_fdFile = 0;
             CloseFile();
+            OnSendFileComplete();
             break;
         }
 

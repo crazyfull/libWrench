@@ -103,6 +103,7 @@ public:
     virtual void OnAccepted();
     virtual void OnReceiveData(const char* Buffer, int Length);
     virtual void OnClosed();
+    virtual void OnSendFileComplete();
 
 
     void CloseFinal();
