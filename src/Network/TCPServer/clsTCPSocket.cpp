@@ -834,7 +834,8 @@ void clsTCPSocket::ResumeSendFile()
             //LOG("sendfile don");
             //sleep(3);
             //usleep(100000);
-            Close(true);
+
+            //Close(true);
             break;
         }
 
