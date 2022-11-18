@@ -829,13 +829,16 @@ void clsTCPSocket::ResumeSendFile()
             continue;
         }
 
-
+        //send complate
         if(sent_bytes == 0){
+
             //LOG("sendfile don");
             //sleep(3);
             //usleep(100000);
 
             //Close(true);
+            //m_fdFile = 0;
+            CloseFile();
             break;
         }
 
