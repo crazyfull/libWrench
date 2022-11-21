@@ -60,7 +60,9 @@ bool clsEpollManager::_Create(uint MaxConnection)
     }
 
     /* */
-    AddWorker(1);
+
+
+   // AddWorker(1);
     return true;
 }
 
@@ -79,6 +81,15 @@ void clsEpollManager::AddWorker(int workerCount)
 void clsEpollManager::CloseEpoll()
 {
     closesocket(m_epollSocket);
+}
+
+void clsEpollManager::Start()
+{
+    //start at thread
+    AddWorker(1);
+
+    //start without thrad
+    //_OnWaitForNewEvenet(nullptr);
 }
 
 
@@ -115,12 +126,10 @@ void clsEpollManager::_OnWaitForNewEvenet(clsThread *pTherad)
             continue;
         }
 
-
         //LOG("get events[%u]", EpollEvent.events);
 
         //for Listener
-        if(ID->isListenerClass())
-        {
+        if(ID->isListenerClass()){
             if (EpollEvent.events & EPOLLIN)
             {
                 clsTCPListener *pTCPListener = ID->getTCPListenerPtr();
@@ -274,6 +283,7 @@ int clsEpollManager::ModifySocket(int Socket, struct epoll_event *event)
 {
     if(Socket == ISINVALID || Socket == 0)
         return 0;
+
     int ret = epoll_ctl(m_epollSocket, EPOLL_CTL_MOD, Socket, event);
     if (ret != 0){
         DebugPrint("Couldn't modify socket: %d, return: %d, err:(%d)", Socket, ret,  ERRNO);
