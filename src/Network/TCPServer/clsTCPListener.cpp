@@ -90,9 +90,9 @@ bool clsTCPListener::StartListen(uint16_t Port, const char* bindIP, clsEpollMana
     }
 
     //***********************************Socket options*********************************
+    /**/
     // set enable socket SO_REUSEADDR
     clsTCPSocket::SetSocketResourceAddr(m_Socket, true);
-
     clsTCPSocket::SetSocketNonBlocking(m_Socket);
 
     //set timeout
@@ -109,13 +109,8 @@ bool clsTCPListener::StartListen(uint16_t Port, const char* bindIP, clsEpollMana
         clsTCPSocket::SetSocketLinger(m_Socket, m_pTCPServer->getSocketOptLingerTime());
 
     clsTCPSocket::SetSocketShared(m_Socket, m_pTCPServer->getSocketOptShare());
-
-    clsTCPSocket::SetSocketNoDelay(m_Socket, m_pTCPServer->getSocketOptNoDelay());
-
     clsTCPSocket::SetSocketKeepAlive(m_Socket, m_pTCPServer->getSocketKeepAlive());
 
-
-    //***********************************************************************************
 
     //bind port
     struct sockaddr_in ServerAddr;
@@ -147,7 +142,7 @@ bool clsTCPListener::StartListen(uint16_t Port, const char* bindIP, clsEpollMana
     }
 
     //create epoll
-    m_ev.events = EPOLL_EVENTS_MULTITHREAD_NONBLOCKING;
+    m_ev.events = EPOLL_EVENTS_TCP_MULTITHREAD_NONBLOCKING;
     m_ev.data.u32 = 0;
     m_ev.data.u64 = 0;
     m_ev.data.ptr = getClassIDPtr();
@@ -162,7 +157,6 @@ bool clsTCPListener::StartListen(uint16_t Port, const char* bindIP, clsEpollMana
 
     return true;
 }
-
 
 void clsTCPListener::StopListen()
 {
