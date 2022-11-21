@@ -22,6 +22,7 @@ public:
     clsTCPServer(uint MaximumConnection = 1024);
 
     clsTCPListener *AddNewListener(uint16_t Port, const char *bindIP, void *p, AcceptCallbackType Acceptcallback);
+    void Start();
 
     bool AddSocketToEventsPoll(clsTCPSocket *pTCPSocket);
     bool RemoveSocketFromEventsPoll(clsTCPSocket *pTCPSocket);

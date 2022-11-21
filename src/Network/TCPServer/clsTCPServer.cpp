@@ -69,12 +69,19 @@ clsTCPListener *clsTCPServer::AddNewListener(uint16_t Port, const char* bindIP, 
         if(!bindIP)
             bindIP = "0.0.0.0";
         LOG("StartListen: (%s:%d)", bindIP, Port);
+
+
         return pListener;
     }else{
         delete pListener;
     }
     return nullptr;
 
+}
+
+void clsTCPServer::Start()
+{
+    m_pEpoll->Start();
 }
 
 void clsTCPServer::AddThreadPool(int threadcount)
