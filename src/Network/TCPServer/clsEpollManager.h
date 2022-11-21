@@ -43,6 +43,7 @@ public:
     int RemoveSocket(int Socket);
 
     void CloseEpoll();
+    void Start();
 
     //GetOverides
     uint MaxConnection() const;
