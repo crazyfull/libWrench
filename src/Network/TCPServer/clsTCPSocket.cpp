@@ -859,7 +859,6 @@ void clsTCPSocket::ResumeSendFile()
                 //usleep(100000);
                 //continue;
                 break;
-
             }else{
                 //other errors
                 if(errno != EPIPE)

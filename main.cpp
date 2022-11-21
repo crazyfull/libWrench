@@ -9,14 +9,15 @@
 #include <clsCString.h>
 #include <clsDNSLookup.h>
 #include <log.h>
-#include "Base64/clsBase64.h"
-#include "Files/clsFileDirectory.h"
 
 //get sockets
 //netstat -n | awk '/^tcp/ {t[$NF]++}END{for(state in t){print state, t[state]} }'
 using namespace std;
-clsTCPServer Server;
+clsTCPServer Server(800);
 bool enableLinger = false;
+
+
+
 
 static void onAccepClient(clsTCPListener *pListener, void *pParent, int NewSocket)
 {
@@ -24,6 +25,8 @@ static void onAccepClient(clsTCPListener *pListener, void *pParent, int NewSocke
 
     clsTCPSocket *newConnection = new clsTCPSocket(&Server);
     newConnection->Accept(NewSocket);
+    //newConnection->Send(answer.c_str(), answer.length());
+    return;
 
     if(enableLinger)
         clsTCPSocket::SetSocketLinger(NewSocket, 2);   //mohem baraye http
@@ -41,7 +44,6 @@ static void onAccepClient(clsTCPListener *pListener, void *pParent, int NewSocke
     */
 }
 
-#include "clsHash.h"
 
 void CString_Test(){
     CString A;
@@ -67,6 +69,7 @@ static void onThread1(clsThread *pTherad, void* pArg){
 int main(int ac, char **av)
 {
 
+    /*
     if(FileDirectory::CreateDirectory("gooz")){
         LOG("CreateDirectory OK");
 
@@ -77,7 +80,6 @@ int main(int ac, char **av)
     return 0;
 
 
-/*
     FileDirectory::ReadFile("/gooz");
 
     LOG("aaa");
@@ -152,7 +154,12 @@ int main(int ac, char **av)
     //LOG("CopyFile(%d)", ret);
 
 
-    getchar();
+    //getchar();
+    /*
+    Server.SetSocketLinger(3);                   //3 sec
+    Server.SetSocketKeepAlive(true);             //3 min
+    Server.SetSocketSendAndReceiveTimeout(60);    //6 sec
+    */
 
     clsTCPSocket *TCP = new clsTCPSocket(&Server);
 
@@ -176,8 +183,9 @@ int main(int ac, char **av)
 
     getchar();
 */
-    Server.AddNewListener(8888, "127.0.0.1", nullptr, onAccepClient);
+    //Server.AddNewListener(8888, "127.0.0.1", nullptr, onAccepClient);
     Server.AddNewListener(8080, nullptr, nullptr, onAccepClient);
+    Server.Start();
 
     getchar();
     enableLinger = true;
