@@ -1,7 +1,6 @@
 #include "clsTCPSocket.h"
 #include "clsTCPServer.h"
 #include <math.h>       /* floor */
-#include "clsFileDirectory.h"
 #include "log.h"
 
 clsTCPSocket::clsTCPSocket(clsTCPServer *pServer)
@@ -49,7 +48,7 @@ void clsTCPSocket::OnAccepted()
 
 void clsTCPSocket::OnReceiveData(const char *Buffer, int Length)
 {
-    LOG("clsTCPSocket::OnReceiveData[%s][%d]", Buffer, Length);
+    //LOG("clsTCPSocket::OnReceiveData[%s][%d]", Buffer, Length);
 }
 
 void clsTCPSocket::OnClosed()
@@ -488,7 +487,7 @@ bool clsTCPSocket::Accept(int new_socket)
     //setsockopt(m_socket, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 
     //epoll Linux
-    m_Event.events = EPOLL_EVENTS_MULTITHREAD_NONBLOCKING;
+    m_Event.events = EPOLL_EVENTS_TCP_MULTITHREAD_NONBLOCKING;
     m_Event.data.u32 = 0;
     m_Event.data.u64 = 0;
     m_Event.data.ptr = getClassIDPtr();
@@ -605,7 +604,7 @@ void clsTCPSocket::ConnectToHost(const char *HostAddress, uint16_t Port, TCPConn
     if(isConnect == 0 || errno == EINPROGRESS)
     {
         //Socket Event Linux
-        m_Event.events = EPOLL_EVENTS_MULTITHREAD_NONBLOCKING | EPOLLOUT; // EPOLLONESHOT multi thread
+        m_Event.events = EPOLL_EVENTS_TCP_MULTITHREAD_NONBLOCKING | EPOLLOUT;
         m_Event.data.u32 = 0;
         m_Event.data.u64 = 0;
         m_Event.data.ptr = getClassIDPtr();
@@ -650,7 +649,7 @@ void clsTCPSocket::onConnected()
     //SetSocketBlockingMode(m_socket);
 
     //change modify for remove EPOLLOUT
-    m_Event.events = EPOLL_EVENTS_MULTITHREAD_NONBLOCKING;
+    m_Event.events = EPOLL_EVENTS_TCP_MULTITHREAD_NONBLOCKING;
 
     //change status...
     _SetStatus(Connected);
@@ -666,7 +665,6 @@ void clsTCPSocket::onReceiving()
 {
     if(Status == Closing){
         //LOG("Close Soceket, err:(%d), m_socket:(%d)", ERRNO, m_socket);
-
         m_pServer->RemoveSocketFromEventsPoll(this);
         return;
     }
@@ -686,7 +684,7 @@ void clsTCPSocket::onReceiving()
     }
 
     char recBuffer[BUFFER_SIZE+1];
-    ssize_t bytesRec = recv(m_socket, recBuffer, BUFFER_SIZE, 0);
+    ssize_t bytesRec = recv(m_socket, recBuffer, BUFFER_SIZE, 0); //read(m_socket, recBuffer, BUFFER_SIZE);
 
     if(Status != Connected)
     {
@@ -753,8 +751,7 @@ ssize_t clsTCPSocket::Send(const char *Buffer, size_t Length)
                 continue;
             }
 
-            if(pBufferLength != Length)
-            {
+            if(pBufferLength != Length){
                 DebugPrint("Send not complite send [%d] of [%d], socket[%d], err:(%d) \n", pBufferLength, Length, m_socket, ERRNO);
             }
             break;
@@ -812,7 +809,7 @@ void clsTCPSocket::ResumeSendFile()
     }
 
     //back to normal event
-    m_Event.events = EPOLL_EVENTS_MULTITHREAD_NONBLOCKING;
+    m_Event.events = EPOLL_EVENTS_TCP_MULTITHREAD_NONBLOCKING;
 
     ssize_t sent_bytes = 0;
     //long remain_data = FileSize;
@@ -854,16 +851,13 @@ void clsTCPSocket::ResumeSendFile()
                 break;
 
             // change event
-            m_Event.events = EPOLL_EVENTS_SEND;
+            m_Event.events = EPOLL_EVENTS_TCP_MULTITHREAD_NONBLOCKING | EPOLLOUT;
 
             //LOG("sendfile errno[%d]", errno); //EAGAIN
             if(errno == EAGAIN){
-
                 //set time for last send
-
                 //usleep(100000);
                 //continue;
-
                 break;
 
             }else{
