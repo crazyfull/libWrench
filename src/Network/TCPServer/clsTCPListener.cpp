@@ -50,8 +50,6 @@ void clsTCPListener::OnAccepting()
 
         //clsTCPSocket::SetSocketSendBuffer(new_socket, 65*1000);
 
-        clsTCPSocket::SetSocketNoDelay(new_socket, true);
-
         //close new socket if not accepted
         int retRyCount = clsTCPSocket::GetSocketConnectTimeout(new_socket);
         if(retRyCount != 0){
