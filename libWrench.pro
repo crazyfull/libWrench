@@ -1,4 +1,4 @@
-DEFINES += libWrenchApp
+#DEFINES += libWrenchApp
 
 contains(DEFINES, libWrenchApp){
     message( "Application" )
@@ -88,10 +88,10 @@ SOURCES += main.cpp \
     src/Network/TCPServer/clsTCPListener.cpp \
     src/Network/TCPServer/clsTCPServer.cpp \
     src/Network/TCPServer/clsTCPSocket.cpp \
-    src/ThreadTimer.cpp \
     src/cJSON/cJSON.c \
     src/clsCString.cpp \
     src/clsThread.cpp \
+    src/clsThreadTimer.cpp \
     src/iniSettings/ConvertUTF.c
 
 
@@ -117,9 +117,9 @@ HEADERS +=  src/clsThread.h \
     src/Network/TCPServer/clsTCPListener.h \
     src/Network/TCPServer/clsTCPServer.h \
     src/Network/TCPServer/clsTCPSocket.h \
-    src/ThreadTimer.h \
     src/cJSON/cJSON.h \
     src/clsCString.h \
+    src/clsThreadTimer.h \
     src/iniSettings/ConvertUTF.h \
     src/iniSettings/SimpleIni.h \
     src/log.h

@@ -1,4 +1,4 @@
-#include "ThreadTimer.h"
+#include "clsThreadTimer.h"
 #include "log.h"
 #include <cstring>
 #include <stdio.h>
@@ -6,17 +6,17 @@
 
 
 
-ThreadTimer::ThreadTimer()
+clsThreadTimer::clsThreadTimer()
 {
     m_pthread = nullptr;
 }
 
-ThreadTimer::~ThreadTimer()
+clsThreadTimer::~clsThreadTimer()
 {
     clean();
 }
 
-void ThreadTimer::clean()
+void clsThreadTimer::clean()
 {
     if(m_pthread){
         m_pthread->Kill();
@@ -25,13 +25,13 @@ void ThreadTimer::clean()
     }
 }
 
-void ThreadTimer::OnTimerTimerOut()
+void clsThreadTimer::OnTimerTimerOut()
 {
     //
     LOG("OnTimerTimerOut()");
 }
 
-void ThreadTimer::__onThreadTimer(clsThread *pTherad, void *pArg)
+void clsThreadTimer::__onThreadTimer(clsThread *pTherad, void *pArg)
 {
     int interval = getInterval();
     bool isSingleshot = getIsSingleshot();
@@ -47,32 +47,32 @@ void ThreadTimer::__onThreadTimer(clsThread *pTherad, void *pArg)
     m_pthread = nullptr;
 }
 
-int ThreadTimer::getInterval() const
+int clsThreadTimer::getInterval() const
 {
     return interval;
 }
 
-bool ThreadTimer::getIsSingleshot() const
+bool clsThreadTimer::getIsSingleshot() const
 {
     return isSingleshot;
 }
 
-void ThreadTimer::SetInterval(int sec)
+void clsThreadTimer::SetInterval(int sec)
 {
     interval = sec;
 }
 
-void ThreadTimer::SetSingleShot(bool isEnable)
+void clsThreadTimer::SetSingleShot(bool isEnable)
 {
     isSingleshot = isEnable;
 }
 
 static void onThreadTimer(clsThread *pTherad, void* pArg){
-    ThreadTimer *pThis = static_cast<ThreadTimer*>(pArg);
+    clsThreadTimer *pThis = static_cast<clsThreadTimer*>(pArg);
     pThis->__onThreadTimer(pTherad, pArg);
 }
 
-void ThreadTimer::StartTimer(int sec)
+void clsThreadTimer::StartTimer(int sec)
 {
     if(sec > 0)
         SetInterval(sec);
@@ -84,7 +84,7 @@ void ThreadTimer::StartTimer(int sec)
     }
 }
 
-void ThreadTimer::StopTimer()
+void clsThreadTimer::StopTimer()
 {
     clean();
 }

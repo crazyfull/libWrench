@@ -1,8 +1,8 @@
-#ifndef THREADTIMER_H
-#define THREADTIMER_H
+#ifndef CLSTHREADTIMER_H
+#define CLSTHREADTIMER_H
 
 class clsThread;
-class ThreadTimer
+class clsThreadTimer
 {
     int interval = 0;
     bool isSingleshot = false;
@@ -10,8 +10,8 @@ class ThreadTimer
 
      void clean();
 public:
-    ThreadTimer();
-    ~ThreadTimer();
+    clsThreadTimer();
+    ~clsThreadTimer();
     virtual void OnTimerTimerOut();
      void __onThreadTimer(clsThread *pTherad, void* pArg);
 
@@ -23,4 +23,4 @@ public:
     bool getIsSingleshot() const;
 };
 
-#endif // THREADTIMER_H
+#endif // CLSTHREADTIMER_H
