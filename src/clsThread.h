@@ -27,8 +27,9 @@ public:
     //
     int _CreateThread(CallbackRoutine Routine, void *Argument, int stackSize);
     static clsThread* CreateThread(CallbackRoutine routine, void *Argument, int stackSize);
-    void _MutexLock();
-    void _MutexUnlock();
+    void Kill();
+    void MutexLock();
+    void MutexUnlock();
 };
 
 

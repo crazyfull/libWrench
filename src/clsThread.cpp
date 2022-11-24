@@ -20,12 +20,12 @@ clsThread::~clsThread()
     pthread_mutex_destroy(&m_Mutex);
 }
 
-void clsThread::_MutexLock()
+void clsThread::MutexLock()
 {
     pthread_mutex_lock(&m_Mutex);
 }
 
-void clsThread::_MutexUnlock()
+void clsThread::MutexUnlock()
 {
     pthread_mutex_unlock(&m_Mutex);
 }
@@ -55,6 +55,12 @@ clsThread *clsThread::CreateThread(CallbackRoutine routine, void *Argument, int 
     }
 
     return newThread;
+}
+
+void clsThread::Kill()
+{
+    //pthread_exit(0);
+    pthread_cancel(m_Thread);
 }
 
 void *clsThread::_onThread(void *p)
