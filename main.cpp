@@ -17,8 +17,6 @@ clsTCPServer Server(800);
 bool enableLinger = false;
 
 
-
-
 static void onAccepClient(clsTCPListener *pListener, void *pParent, int NewSocket)
 {
     LOG("NewSocket(%d)", NewSocket);
@@ -56,8 +54,6 @@ void CString_Test(){
         B.AddReserveSize(5);
         B.append("goozaaaaaaaaaaaaa");
     }
-
-
 }
 
 static void onThread1(clsThread *pTherad, void* pArg){
@@ -65,9 +61,25 @@ static void onThread1(clsThread *pTherad, void* pArg){
 }
 
 
-
+#include "ThreadTimer.h"
 int main(int ac, char **av)
 {
+
+    for(;;){
+        ThreadTimer *t = new ThreadTimer;
+        t->SetInterval(3);
+        t->SetSingleShot(false);
+        t->StartTimer();
+
+        getchar();
+
+        LOG("delete timer");
+        delete t;
+
+        //getchar();
+    }
+
+
 
     /*
     if(FileDirectory::CreateDirectory("gooz")){

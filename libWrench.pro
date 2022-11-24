@@ -1,4 +1,4 @@
-#DEFINES += libWrenchApp
+DEFINES += libWrenchApp
 
 contains(DEFINES, libWrenchApp){
     message( "Application" )
@@ -15,7 +15,7 @@ contains(DEFINES, libWrenchApp){
     DEFINES += libWrench
     #CONFIG += c++11 staticlib
     TARGET = libWrench
-    VERSION = 1.1.40
+    VERSION = 1.1.44
 }
 
 #c++ 11 & static build
@@ -88,6 +88,7 @@ SOURCES += main.cpp \
     src/Network/TCPServer/clsTCPListener.cpp \
     src/Network/TCPServer/clsTCPServer.cpp \
     src/Network/TCPServer/clsTCPSocket.cpp \
+    src/ThreadTimer.cpp \
     src/cJSON/cJSON.c \
     src/clsCString.cpp \
     src/clsThread.cpp \
@@ -116,6 +117,7 @@ HEADERS +=  src/clsThread.h \
     src/Network/TCPServer/clsTCPListener.h \
     src/Network/TCPServer/clsTCPServer.h \
     src/Network/TCPServer/clsTCPSocket.h \
+    src/ThreadTimer.h \
     src/cJSON/cJSON.h \
     src/clsCString.h \
     src/iniSettings/ConvertUTF.h \
