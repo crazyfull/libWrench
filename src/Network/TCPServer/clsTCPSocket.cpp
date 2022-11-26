@@ -57,7 +57,7 @@ void clsTCPSocket::OnClosed()
     //delete this;
 }
 
-void clsTCPSocket::OnSendFileStatus(ssize_t size)
+void clsTCPSocket::OnSendFileStatus(uint64_t SizeSent)
 {
     //
 }
@@ -833,7 +833,7 @@ void clsTCPSocket::ResumeSendFile()
             //remain_data -= sent_bytes;
             //LOG("sendfile [%ld] offset[%ld] remain_data[%ld]", sent_bytes, offest, remain_data);
             //LOG("sent_bytes [%ld] m_offest[%ld]", sent_bytes, m_offest);
-            OnSendFileStatus(sent_bytes);
+            OnSendFileStatus(m_offest);
             continue;
         }
 

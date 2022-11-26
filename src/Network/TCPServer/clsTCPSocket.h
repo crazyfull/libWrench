@@ -103,7 +103,7 @@ public:
     virtual void OnAccepted();
     virtual void OnReceiveData(const char* Buffer, int Length);
     virtual void OnClosed();
-    virtual void OnSendFileStatus(ssize_t size);
+    virtual void OnSendFileStatus(uint64_t SizeSent);
     virtual void OnSendFileComplete();
 
 
