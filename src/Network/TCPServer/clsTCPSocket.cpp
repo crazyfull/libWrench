@@ -57,9 +57,14 @@ void clsTCPSocket::OnClosed()
     //delete this;
 }
 
+void clsTCPSocket::OnSendFileStatus(ssize_t size)
+{
+    //
+}
+
 void clsTCPSocket::OnSendFileComplete()
 {
-//
+    //
 }
 
 
@@ -828,6 +833,7 @@ void clsTCPSocket::ResumeSendFile()
             //remain_data -= sent_bytes;
             //LOG("sendfile [%ld] offset[%ld] remain_data[%ld]", sent_bytes, offest, remain_data);
             //LOG("sent_bytes [%ld] m_offest[%ld]", sent_bytes, m_offest);
+            OnSendFileStatus(sent_bytes);
             continue;
         }
 
@@ -835,7 +841,6 @@ void clsTCPSocket::ResumeSendFile()
         if(sent_bytes == 0){
 
             //LOG("sendfile don");
-            //sleep(3);
             //usleep(100000);
 
             //Close(true);
