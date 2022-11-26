@@ -96,6 +96,7 @@ public:
     static bool isExistCase(const char *text, const char *content);
     static bool isExist(const char *text, const char *content);
     bool isExist(const char *text) const;
+    bool isExistCase(const char *text) const;
 
 
     void SetDataWithNewPointer(char *data, int dataLengh);

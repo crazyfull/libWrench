@@ -509,6 +509,11 @@ bool CString::isExist(const char *text) const
     return isExist(text, Buffer);
 }
 
+bool CString::isExistCase(const char *text) const
+{
+    return isExistCase(text, Buffer);
+}
+
 bool CString::isEmpty()
 {
     if(m_Lengh > 0){
