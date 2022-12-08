@@ -15,7 +15,7 @@ contains(DEFINES, libWrenchApp){
     DEFINES += libWrench
     #CONFIG += c++11 staticlib
     TARGET = libWrench
-    VERSION = 1.1.50
+    VERSION = 1.1.51
 }
 
 #c++ 11 & static build
