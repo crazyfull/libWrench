@@ -30,6 +30,7 @@ namespace cryptography
         static uint8_t GenerateRandomNumber(uint8_t Min, uint8_t Max);
         static uint32_t GenerateRandomLongNumber(uint32_t Min, uint32_t Max);
         static void GenerateRandomBytes(unsigned char *OutBuffer, int OutBufferSize);
+        static CString GenerateRandomString(int len);
 
     };
 }

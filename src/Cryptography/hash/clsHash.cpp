@@ -315,6 +315,16 @@ void clsHash::GenerateRandomBytes(unsigned char *OutBuffer, int OutBufferSize)
     }
     //RAND_pseudo_bytes((unsigned char*)OutBuffer, OutBufferSize);
 }
+
+CString clsHash::GenerateRandomString(int len)
+{
+    CString ret;
+    ret.AddReserveSize(len);
+    for(int i = 0; i <= len; i++){
+        ret.append((const uint8_t *)GenerateRandomNumber(97, 122), 1);
+    }
+    return ret;
+}
 }
 
 
