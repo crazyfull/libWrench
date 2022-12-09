@@ -9,6 +9,7 @@
 #include <clsCString.h>
 #include <clsDNSLookup.h>
 #include <log.h>
+#include "clsHash.h"
 
 //get sockets
 //netstat -n | awk '/^tcp/ {t[$NF]++}END{for(state in t){print state, t[state]} }'
@@ -61,25 +62,8 @@ static void onThread1(clsThread *pTherad, void* pArg){
 }
 
 
-#include "ThreadTimer.h"
 int main(int ac, char **av)
 {
-
-    for(;;){
-        ThreadTimer *t = new ThreadTimer;
-        t->SetInterval(3);
-        t->SetSingleShot(false);
-        t->StartTimer();
-
-        getchar();
-
-        LOG("delete timer");
-        delete t;
-
-        //getchar();
-    }
-
-
 
     /*
     if(FileDirectory::CreateDirectory("gooz")){
