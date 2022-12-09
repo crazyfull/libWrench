@@ -1,6 +1,7 @@
 #include "clsHash.h"
 #include <stdlib.h>
 #include <time.h>
+#include "log.h"
 #include "md5.h"
 #include "sha1.h"
 #include "sha256.h"
@@ -321,7 +322,8 @@ CString clsHash::GenerateRandomString(int len)
     CString ret;
     ret.AddReserveSize(len);
     for(int i = 0; i <= len; i++){
-        ret.append((const uint8_t *)GenerateRandomNumber(97, 122), 1);
+        uint8_t c = GenerateRandomNumber(97, 122);
+        ret.append(&c, 1);
     }
     return ret;
 }
