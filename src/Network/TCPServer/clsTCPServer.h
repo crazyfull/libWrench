@@ -2,6 +2,7 @@
 #define CLSTCPSERVER_H
 #include "clsTCPListener.h"
 #include "clsEpollManager.h"
+#include "clsSecureSocket.h"
 
 class clsTCPServer
 {
@@ -15,11 +16,14 @@ private:
     bool SocketOptNoDelay;
     bool SocketKeepAlive;
     clsEpollManager* m_pEpoll;
+    clsSecureSocket* m_pSSlSocket;
+
     void AddThreadPool(int threadcount);
 
 public:
 
     clsTCPServer(uint MaximumConnection = 1024);
+    ~clsTCPServer();
 
     clsTCPListener *AddNewListener(uint16_t Port, const char *bindIP, void *p, AcceptCallbackType Acceptcallback);
     void Start();
@@ -43,6 +47,9 @@ public:
     bool getSocketOptShare() const;
     bool getSocketOptNoDelay() const;
     bool getSocketKeepAlive() const;
+    clsSecureSocket *SSlSocket() const;
+    bool SetCertificateSSL(const char *CertPath, const char *KeyPath);
+
 };
 
 #endif // CLSTCPSERVER_H

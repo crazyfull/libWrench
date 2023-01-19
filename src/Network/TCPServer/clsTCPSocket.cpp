@@ -3,6 +3,11 @@
 #include <math.h>       /* floor */
 #include "log.h"
 
+#ifdef USE_SSL
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#endif
+
 clsTCPSocket::clsTCPSocket(clsTCPServer *pServer)
 {
     if(!pServer){
@@ -13,6 +18,7 @@ clsTCPSocket::clsTCPSocket(clsTCPServer *pServer)
     m_pServer = pServer;
     Status = Closed;
     m_socket = 0;
+    m_pClientSSlCtx = NULL;
     ClientIP.s_addr = 0;
     m_fdFile = 0;
     m_offest = 0;
@@ -48,7 +54,13 @@ void clsTCPSocket::OnAccepted()
 
 void clsTCPSocket::OnReceiveData(const char *Buffer, int Length)
 {
-    //LOG("clsTCPSocket::OnReceiveData[%s][%d]", Buffer, Length);
+    LOG("clsTCPSocket::OnReceiveData[%s][%d]", Buffer, Length);
+
+    char szEchoMessage[] = "HTTP/1.1 200 OK\r\n"
+                           "Content-Length: 9\r\n"
+                           "\r\n"
+                           "Chetori g";
+    Send(szEchoMessage);
 }
 
 void clsTCPSocket::OnClosed()
@@ -447,7 +459,7 @@ in_addr clsTCPSocket::GetSockaddrFromSocket(int sock){
     return ret;
 }
 
-bool clsTCPSocket::Accept(int new_socket)
+bool clsTCPSocket::Accept(int new_socket, bool useSSL)
 {
     if(Status != Closed || new_socket == 0 || new_socket == ISINVALID)
     {
@@ -461,6 +473,23 @@ bool clsTCPSocket::Accept(int new_socket)
 
     //Save ClientIP
     ClientIP = GetSockaddrFromSocket(m_socket);
+
+    //if use ssl
+    if(useSSL){
+#ifdef USE_SSL
+        m_pClientSSlCtx = m_pServer->SSlSocket()->newClientSSL(m_socket);
+        int retVal = SSL_accept(m_pClientSSlCtx);
+        if (retVal <= 0) {
+            DebugPrint("SSL_accept failed: %d", SSL_get_error(m_pClientSSlCtx, retVal));
+            Close();
+            return false;
+        }
+#else
+        DebugPrint("not suported ssl socket because ssl library is not linked");
+        Close();
+        return false;
+#endif
+    }
 
     /*
     struct sockaddr_storage *ClientAddrstorage;
@@ -689,7 +718,15 @@ void clsTCPSocket::onReceiving()
     }
 
     char recBuffer[BUFFER_SIZE+1];
-    ssize_t bytesRec = recv(m_socket, recBuffer, BUFFER_SIZE, 0); //read(m_socket, recBuffer, BUFFER_SIZE);
+    ssize_t bytesRec;
+    if(m_pClientSSlCtx){
+#ifdef USE_SSL
+        bytesRec = SSL_read(m_pClientSSlCtx, recBuffer, BUFFER_SIZE);
+#endif
+    }else{
+        bytesRec = recv(m_socket, recBuffer, BUFFER_SIZE, 0); //read(m_socket, recBuffer, BUFFER_SIZE);
+    }
+
 
     if(Status != Connected)
     {
@@ -747,7 +784,14 @@ ssize_t clsTCPSocket::Send(const char *Buffer, size_t Length)
     int pBufferLength = Length;
     while(pBufferLength > 0){
 
-        bytesSent = send(m_socket, pBuffer , pBufferLength, MSG_NOSIGNAL);
+        if(m_pClientSSlCtx){
+#ifdef USE_SSL
+            bytesSent = SSL_write(m_pClientSSlCtx, pBuffer, pBufferLength);
+#endif
+        }else{
+            bytesSent = send(m_socket, pBuffer , pBufferLength, MSG_NOSIGNAL);
+        }
+
 
         if(bytesSent == ISINVALID)
         {
@@ -878,9 +922,28 @@ void clsTCPSocket::ResumeSendFile()
 
 void clsTCPSocket::Close(bool isShutdown)
 {
-    if (Status == Closed || Status == Closing)
-    {
+    if (Status == Closed || Status == Closing){
         return;
+    }
+
+    //bool isShutDown = false;
+    if (Status == Connected)
+        isShutdown = true;
+
+    //clean ssl socket
+#ifdef USE_SSL
+    if(m_pClientSSlCtx){
+        if(isShutdown == true){
+            SSL_set_shutdown(m_pClientSSlCtx, SSL_RECEIVED_SHUTDOWN | SSL_SENT_SHUTDOWN);
+            SSL_shutdown(m_pClientSSlCtx);
+        }
+        SSL_free(m_pClientSSlCtx);
+        m_pClientSSlCtx = NULL;
+    }
+#endif
+
+    if (Status == Accepting){
+        CloseFinal();
     }
 
     //LOG("Close() errno[%d]\n", errno);
@@ -890,10 +953,6 @@ void clsTCPSocket::Close(bool isShutdown)
         _SetStatus(Closed);
         return;
     }
-
-    //bool isShutDown = false;
-    if (Status == Connected)
-        isShutdown = true;
 
 
     //change status...
@@ -919,7 +978,6 @@ void clsTCPSocket::Close(bool isShutdown)
         //remove of epoll manager
         if(m_socket != ISINVALID || m_socket != 0)
             m_pServer->RemoveSocketFromEventsPoll(this);
-
     }
 
 }

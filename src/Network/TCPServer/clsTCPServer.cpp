@@ -3,6 +3,31 @@
 #include "clsTCPSocket.h"
 #include "log.h"
 
+
+clsTCPServer::clsTCPServer(uint MaximumConnection)
+{
+    m_pEpoll = new clsEpollManager(this, MaximumConnection);
+    m_pSSlSocket = new clsSecureSocket;
+
+    //
+    SocketOptSendRecTimeout = 0;
+    SocketOptReceiveBufferSize = 0;
+    SocketOptSendBufferSize = 0;
+    SocketOptShare = false;
+    SocketOptNoDelay = false;
+    SocketKeepAlive = false;
+    SocketOptLingerTime = 0;
+
+
+    //set maximum connection
+    //FileDirectory::SetMaximumFileDiscriptor(MaximumConnection*2);
+}
+
+clsTCPServer::~clsTCPServer()
+{
+    //
+}
+
 int clsTCPServer::getSocketOptSendRecTimeout() const
 {
     return SocketOptSendRecTimeout;
@@ -38,24 +63,6 @@ bool clsTCPServer::getSocketKeepAlive() const
     return SocketKeepAlive;
 }
 
-clsTCPServer::clsTCPServer(uint MaximumConnection)
-{
-    m_pEpoll = new clsEpollManager(this, MaximumConnection);
-
-    //
-    SocketOptSendRecTimeout = 0;
-    SocketOptReceiveBufferSize = 0;
-    SocketOptSendBufferSize = 0;
-    SocketOptShare = false;
-    SocketOptNoDelay = false;
-    SocketKeepAlive = false;
-    SocketOptLingerTime = 0;
-
-
-    //set maximum connection
-    //FileDirectory::SetMaximumFileDiscriptor(MaximumConnection*2);
-}
-
 
 clsTCPListener *clsTCPServer::AddNewListener(uint16_t Port, const char* bindIP, void *p, AcceptCallbackType Acceptcallback)
 {
@@ -82,6 +89,16 @@ clsTCPListener *clsTCPServer::AddNewListener(uint16_t Port, const char* bindIP, 
 void clsTCPServer::Start()
 {
     m_pEpoll->Start();
+}
+
+clsSecureSocket *clsTCPServer::SSlSocket() const
+{
+    return m_pSSlSocket;
+}
+
+bool clsTCPServer::SetCertificateSSL(const char *CertPath, const char *KeyPath)
+{
+    return m_pSSlSocket->setSSLConfig(CertPath, KeyPath);
 }
 
 void clsTCPServer::AddThreadPool(int threadcount)

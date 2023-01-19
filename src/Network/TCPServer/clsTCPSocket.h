@@ -3,6 +3,7 @@
 #include "SocketHeader.h"
 #include "clsIDType.h"
 #include "clsCString.h"
+#include "clsSecureSocket.h"
 
 //5 66sec , 4 32sec, 3 15sec, 2 7sec, 1 3sec
 
@@ -37,6 +38,7 @@ private:
     //variable
 
     int m_socket;
+    SSL*   m_pClientSSlCtx;
     TCPSocketStatus Status;
     in_addr ClientIP;
     epoll_event m_Event;
@@ -74,7 +76,7 @@ public:
     static bool SetSocketSendAndReceiveTimeOut(int fd, int secTime);
     static in_addr GetSockaddrFromSocket(int sock);
 
-    bool Accept(int new_socket);
+    bool Accept(int new_socket, bool useSSL = false);
     void ConnectToHost(const char* HostAddress, uint16_t Port, TCPConnectTimeout Timeout = TIMEOUT_66Sec);
     ssize_t Send(const char* Buffer, size_t Length);
     ssize_t Send(const char* Buffer);
