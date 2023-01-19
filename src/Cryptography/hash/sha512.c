@@ -257,7 +257,7 @@ void rhash_sha512_final(sha512_ctx *ctx, unsigned char* result)
 /*
  * Output = SHA-512( input buffer )
  */
-void SHA512 (const unsigned char *input, int ilen, unsigned char output[SHA512_DIGEST_LENGTH])
+void toSHA512 (const unsigned char *input, int ilen, unsigned char output[SHA512_DIGEST_LENGTH])
 {
     sha512_ctx ctx;
     rhash_sha512_init (&ctx);

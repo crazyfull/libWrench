@@ -46,7 +46,7 @@ void rhash_sha512_init(sha512_ctx *ctx);
 void rhash_sha512_update(sha512_ctx *ctx, const unsigned char* data, size_t length);
 void rhash_sha512_final(sha512_ctx *ctx, unsigned char* result);
 
-void SHA512 (const unsigned char *input, int ilen, unsigned char output[SHA512_DIGEST_LENGTH]);
+void toSHA512 (const unsigned char *input, int ilen, unsigned char output[SHA512_DIGEST_LENGTH]);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -242,7 +242,7 @@ void sha256_finish(sha256_context * ctx, uint8_t digest[32])
 /*
  * Output = SHA-256( input buffer )
  */
-void SHA256 (const unsigned char *input, int ilen, unsigned char output[SHA256_DIGEST_LENGTH])
+void toSHA256 (uint8_t *input, int ilen, unsigned char output[SHA256_DIGEST_LENGTH])
 {
     sha256_context ctx;
 

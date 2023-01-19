@@ -201,7 +201,7 @@ CString clsHash::ToSHA1(const char *inData, int inDataLength, bool toHex)
     char OutData[SHA1_DIGEST_LENGTH];
 
     //to SHA1
-    SHA1((const unsigned char*)inData, inDataLength, (unsigned char*)OutData);
+    toSHA1((const unsigned char*)inData, inDataLength, (unsigned char*)OutData);
 
     //tohex
     if(toHex){
@@ -223,7 +223,7 @@ CString clsHash::ToSHA256(const char *inData, int inDataLength, bool toHex)
     char OutData[SHA256_DIGEST_LENGTH];
 
     //to SHA256
-    SHA256((const unsigned char*)inData, inDataLength, (unsigned char*)OutData);
+    toSHA256((uint8_t *)inData, inDataLength, (unsigned char*)OutData);
 
     if(toHex){
         char hexOut[SHA256_DIGEST_LENGTH*2+1];
@@ -242,7 +242,7 @@ CString clsHash::ToSHA256(const char *inData, int inDataLength, bool toHex)
 uint32_t clsHash::ToSHA512(const char *source, int sourceLength, char *outPut, bool toHex)
 {
     //to SHA512
-    SHA512((const unsigned char*)source, sourceLength, (unsigned char*)outPut);
+    toSHA512((const unsigned char*)source, sourceLength, (unsigned char*)outPut);
 
     //tohex
     if(toHex){
@@ -261,7 +261,7 @@ CString clsHash::ToSHA512(const char *inData, int inDataLength, bool toHex)
     char OutData[SHA512_DIGEST_LENGTH];
 
     //to SHA512
-    SHA512((const unsigned char*)inData, inDataLength, (unsigned char*)OutData);
+    toSHA512((const unsigned char*)inData, inDataLength, (unsigned char*)OutData);
 
 
     //tohex
