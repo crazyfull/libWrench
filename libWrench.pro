@@ -1,4 +1,4 @@
-#DEFINES += libWrenchApp
+DEFINES += libWrenchApp
 
 contains(DEFINES, libWrenchApp){
     message( "Application" )
@@ -7,6 +7,10 @@ contains(DEFINES, libWrenchApp){
     CONFIG += console
     CONFIG -= app_bundle
     CONFIG -= qt
+
+    DEFINES += USE_SSL
+    LIBS += -lssl -lcrypto      #openssl
+
 } else {
     message( "Library" )
     ####Library
@@ -15,7 +19,7 @@ contains(DEFINES, libWrenchApp){
     DEFINES += libWrench
     #CONFIG += c++11 staticlib
     TARGET = libWrench
-    VERSION = 1.1.52
+    VERSION = 1.2.0
 }
 
 #c++ 11 & static build
@@ -25,6 +29,7 @@ CONFIG += c++11 staticlib
 #NOLOG
 #DEFINES += "NDEBUG"
 #DEFINES += "NONEEDLOG"
+
 
 #
 #unix:DESTDIR = /usr/lib/libTCPServer
@@ -85,6 +90,7 @@ SOURCES += main.cpp \
     src/Network/DNSLookup/clsDNSPackets.cpp \
     src/Network/TCPServer/clsEpollManager.cpp \
     src/Network/TCPServer/clsIDType.cpp \
+    src/Network/TCPServer/clsSecureSocket.cpp \
     src/Network/TCPServer/clsTCPListener.cpp \
     src/Network/TCPServer/clsTCPServer.cpp \
     src/Network/TCPServer/clsTCPSocket.cpp \
@@ -114,6 +120,7 @@ HEADERS +=  src/clsThread.h \
     src/Network/TCPServer/SocketHeader.h \
     src/Network/TCPServer/clsEpollManager.h \
     src/Network/TCPServer/clsIDType.h \
+    src/Network/TCPServer/clsSecureSocket.h \
     src/Network/TCPServer/clsTCPListener.h \
     src/Network/TCPServer/clsTCPServer.h \
     src/Network/TCPServer/clsTCPSocket.h \
