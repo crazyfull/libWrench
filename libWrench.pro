@@ -8,9 +8,6 @@ contains(DEFINES, libWrenchApp){
     CONFIG -= app_bundle
     CONFIG -= qt
 
-    DEFINES += USE_SSL
-    LIBS += -lssl -lcrypto      #openssl
-
 } else {
     message( "Library" )
     ####Library
@@ -19,7 +16,7 @@ contains(DEFINES, libWrenchApp){
     DEFINES += libWrench
     #CONFIG += c++11 staticlib
     TARGET = libWrench
-    VERSION = 1.2.0
+    VERSION = 1.2.1
 }
 
 #c++ 11 & static build
@@ -30,6 +27,8 @@ CONFIG += c++11 staticlib
 #DEFINES += "NDEBUG"
 #DEFINES += "NONEEDLOG"
 
+DEFINES += USE_SSL
+LIBS += -lssl -lcrypto      #openssl
 
 #
 #unix:DESTDIR = /usr/lib/libTCPServer

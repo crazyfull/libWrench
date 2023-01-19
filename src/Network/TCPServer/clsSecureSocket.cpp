@@ -8,6 +8,12 @@
 clsSecureSocket::clsSecureSocket()
 {
     m_pServerSSlCtx = CreateSSlCtx();
+
+    /*
+    SSL_load_error_strings();
+    SSL_library_init();
+    SSLeay_add_ssl_algorithms();
+    */
 }
 
 clsSecureSocket::~clsSecureSocket()
@@ -20,8 +26,9 @@ SSL_CTX* clsSecureSocket::CreateSSlCtx() {
     SSL_CTX* pSSLCtx = nullptr;
 #ifdef USE_SSL
     //highest available SSL/TLS version
-    const SSL_METHOD * method = TLS_server_method();
+    const SSL_METHOD * method =  TLS_server_method();
     pSSLCtx = SSL_CTX_new(method);
+    //SSL_CTX_set_ssl_version(pSSLCtx, TLSv1_2_server_method());
 #endif
     return pSSLCtx;
 }

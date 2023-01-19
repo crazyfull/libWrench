@@ -62,7 +62,7 @@ void clsTCPSocket::OnReceiveData(const char *Buffer, int Length)
                            "\r\n"
                            "Chetori g";
     Send(szEchoMessage);
-    */
+*/
 }
 
 void clsTCPSocket::OnClosed()
@@ -480,9 +480,17 @@ bool clsTCPSocket::Accept(int new_socket, bool useSSL)
     if(useSSL){
 #ifdef USE_SSL
         m_pClientSSlCtx = m_pServer->SSlSocket()->newClientSSL(m_socket);
-        int retVal = SSL_accept(m_pClientSSlCtx);
-        if (retVal <= 0) {
-            DebugPrint("SSL_accept failed: %d", SSL_get_error(m_pClientSSlCtx, retVal));
+        int ret = SSL_accept(m_pClientSSlCtx);
+        if (ret == 0) {
+            DebugPrint("SSL_accept failed: %d", SSL_get_error(m_pClientSSlCtx, ret));
+            Close();
+            return false;
+        }
+
+        if (ret == ISINVALID) {
+            ulong err = ERR_get_error();
+            // SSL_ERROR_WANT_READ
+            DebugPrint("SSL_accept failed: [%lu], [%s], [%s]", err, SSL_get_version(m_pClientSSlCtx) , ERR_error_string(err, NULL));
             Close();
             return false;
         }
