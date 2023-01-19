@@ -23,8 +23,7 @@ static void onAccepClient(clsTCPListener *pListener, void *pParent, int NewSocke
     LOG("NewSocket(%d)", NewSocket);
 
     clsTCPSocket *newConnection = new clsTCPSocket(&Server);
-    newConnection->Accept(NewSocket);
-    //newConnection->Send(answer.c_str(), answer.length());
+    newConnection->Accept(NewSocket, true);
     return;
 
     if(enableLinger)
@@ -181,6 +180,8 @@ int main(int ac, char **av)
 */
     //Server.AddNewListener(8888, "127.0.0.1", nullptr, onAccepClient);
     Server.AddNewListener(8080, nullptr, nullptr, onAccepClient);
+    Server.SetCertificateSSL("/home/crow/programing/libWrench/cert/public.cer",
+                             "/home/crow/programing/libWrench/cert/sv10.mojz.ir.key");
     Server.Start();
 
     getchar();
