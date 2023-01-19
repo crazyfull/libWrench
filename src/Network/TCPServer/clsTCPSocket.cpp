@@ -54,6 +54,7 @@ void clsTCPSocket::OnAccepted()
 
 void clsTCPSocket::OnReceiveData(const char *Buffer, int Length)
 {
+    /*
     LOG("clsTCPSocket::OnReceiveData[%s][%d]", Buffer, Length);
 
     char szEchoMessage[] = "HTTP/1.1 200 OK\r\n"
@@ -61,6 +62,7 @@ void clsTCPSocket::OnReceiveData(const char *Buffer, int Length)
                            "\r\n"
                            "Chetori g";
     Send(szEchoMessage);
+    */
 }
 
 void clsTCPSocket::OnClosed()
