@@ -493,18 +493,31 @@ bool clsTCPSocket::Accept(int new_socket, bool useSSL)
             return false;
         }
 
+        //Do the SSL Handshake
         int ret = SSL_accept(m_pClientSSlCtx);
-        if (ret == 0) {
+
+        //Check for error in handshake
+        if (ret < 1) {
             //DebugPrint("SSL_accept failed: %d", SSL_get_error(m_pClientSSlCtx, ret));
             Close();
             return false;
         }
 
-        if (ret == ISINVALID) {
-            //DebugPrint("SSL_get_cipher_name[%s]", SSL_get_cipher_name(m_pClientSSlCtx));
+        // Check for Client authentication error
+        if (SSL_get_verify_result(m_pClientSSlCtx) != X509_V_OK) {
+            DebugPrint("SSL Client Authentication error");
+            SSL_free(m_pClientSSlCtx);
             Close();
             return false;
         }
+
+        /*Print connection details
+        LOG("SSL connection on socket [%x],Version: [%s], Cipher: [%s], Hostname [%s]\n",
+               m_socket,
+               SSL_get_version(m_pClientSSlCtx),
+               SSL_get_cipher(m_pClientSSlCtx),
+               SSL_get_servername(m_pClientSSlCtx, TLSEXT_NAMETYPE_host_name));
+        */
 #else
         DebugPrint("not suported ssl socket because ssl library is not linked");
         Close();
@@ -743,14 +756,18 @@ void clsTCPSocket::onReceiving()
     if(m_pClientSSlCtx){
 #ifdef USE_SSL
         bytesRec = SSL_read(m_pClientSSlCtx, recBuffer, BUFFER_SIZE);
+
+        if(bytesRec < 1) {
+            int err = SSL_get_error(m_pClientSSlCtx, bytesRec);
+            if(err == 6)
+                  SSL_shutdown(m_pClientSSlCtx);
+        }
 #endif
     }else{
         bytesRec = recv(m_socket, recBuffer, BUFFER_SIZE, 0); //read(m_socket, recBuffer, BUFFER_SIZE);
     }
 
-
-    if(Status != Connected)
-    {
+    if(Status != Connected){
         return;
     }
 
@@ -808,6 +825,11 @@ ssize_t clsTCPSocket::Send(const char *Buffer, size_t Length)
         if(m_pClientSSlCtx){
 #ifdef USE_SSL
             bytesSent = SSL_write(m_pClientSSlCtx, pBuffer, pBufferLength);
+            if(bytesSent < 1) {
+                int err = SSL_get_error(m_pClientSSlCtx, bytesSent);
+                if(err == 6)
+                      SSL_shutdown(m_pClientSSlCtx);
+            }
 #endif
         }else{
             bytesSent = send(m_socket, pBuffer , pBufferLength, MSG_NOSIGNAL);

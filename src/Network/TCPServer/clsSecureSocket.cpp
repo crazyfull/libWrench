@@ -12,6 +12,9 @@ clsSecureSocket::clsSecureSocket()
 
     }
 
+    // Initialize the SSL libraries
+    OPENSSL_init_ssl(OPENSSL_INIT_NO_LOAD_SSL_STRINGS, NULL);
+
     /*
     SSL_load_error_strings();
     SSL_library_init();
@@ -86,27 +89,31 @@ void clsSecureSocket::FreeSSlCtx() {
 
 bool clsSecureSocket::setSSLConfig(const char* CertPath, const char* KeyPath) {
 #ifdef USE_SSL
-    if (SSL_CTX_use_certificate_file(m_pServerSSlCtx, CertPath, SSL_FILETYPE_PEM) == -1) {
-        DebugPrint("SSL_CTX_use_certificate_file() failed");
+
+    if (SSL_CTX_use_certificate_file(m_pServerSSlCtx, CertPath, SSL_FILETYPE_PEM) <= 0) {
+        DebugPrint("The certificate file [%s] does not exist or you do not have permission to read that file.", CertPath);
         return false;
     }
 
-    if (SSL_CTX_use_PrivateKey_file(m_pServerSSlCtx, KeyPath, SSL_FILETYPE_PEM) == -1) {
-        DebugPrint("SSL_CTX_use_PrivateKey_file() failed");
+    if (SSL_CTX_use_PrivateKey_file(m_pServerSSlCtx, KeyPath, SSL_FILETYPE_PEM) <= 0) {
+        DebugPrint("The private key file [%s] does not exist or you do not have permission to read that file.", KeyPath);
         return false;
     }
 
-    if (SSL_CTX_check_private_key(m_pServerSSlCtx) == ISINVALID)
+    if (SSL_CTX_check_private_key(m_pServerSSlCtx) <= 0)
     {
-        DebugPrint("SSL_CTX_check_private_key() failed");
+        DebugPrint("The private key file does not match the corresponding public key in the certificate.");
         return false;
     }
 
 
     //SSL_CTX_set_ciphersuites(m_pServerSSlCtx, "TLS_CHACHA20_POLY1305_SHA256");
 
-    // Enable server certificate verification. Enable before accepting connections.
-    // SSL_CTX_set_verify(m_pServerSSlCtx, SSL_VERIFY_PEER, NULL);
+    // the application will not request the certificate for the remote client application when the SSL session is started.
+    // SSL_VERIFY_NONE
+
+    //he application will request and verify the certificate for the remote client application when the SSL session is started
+    //SSL_CTX_set_verify(m_pServerSSlCtx, SSL_VERIFY_PEER, NULL);
 
     return true;
 #else
@@ -117,9 +124,12 @@ bool clsSecureSocket::setSSLConfig(const char* CertPath, const char* KeyPath) {
 SSL* clsSecureSocket::newClientSSL(int fd) {
     SSL *pClientSSlCtx;
 #ifdef USE_SSL
+    //Create new ssl object
     pClientSSlCtx = SSL_new(m_pServerSSlCtx);
-    if(pClientSSlCtx)
+    if(pClientSSlCtx){
+        //Bind the ssl object with the socket
         SSL_set_fd(pClientSSlCtx, fd);
+    }
 #endif
     return pClientSSlCtx;
 }
