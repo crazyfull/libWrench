@@ -1,4 +1,4 @@
-DEFINES += libWrenchApp
+#DEFINES += libWrenchApp
 
 contains(DEFINES, libWrenchApp){
     message( "Application" )
