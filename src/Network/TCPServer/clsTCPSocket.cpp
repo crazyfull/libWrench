@@ -484,7 +484,14 @@ bool clsTCPSocket::Accept(int new_socket, bool useSSL)
     //if use ssl
     if(useSSL){
 #ifdef USE_SSL
-        m_pClientSSlCtx = m_pServer->SSlSocket()->newClientSSL(m_socket);
+        clsSecureSocket *pSecureSocket = m_pServer->SSlSocket();
+        if(pSecureSocket){
+            m_pClientSSlCtx = pSecureSocket->newClientSSL(m_socket);
+        }else{
+            DebugPrint("certificate is not found");
+            Close();
+            return false;
+        }
 
         int ret = SSL_accept(m_pClientSSlCtx);
         if (ret == 0) {

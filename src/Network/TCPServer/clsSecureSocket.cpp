@@ -8,6 +8,9 @@
 clsSecureSocket::clsSecureSocket()
 {
     m_pServerSSlCtx = CreateSSlCtx();
+    if(!m_pServerSSlCtx){
+
+    }
 
     /*
     SSL_load_error_strings();
@@ -21,14 +24,53 @@ clsSecureSocket::~clsSecureSocket()
     FreeSSlCtx();
 }
 
+bool clsSecureSocket::setSSLMethod(SSLMethod value)
+{
+    bool ret =false;
+    m_SSLMethod = value;
+    const SSL_METHOD * method = NULL;
+    switch (m_SSLMethod) {
+    case SSLV1:
+        method = TLSv1_server_method();
+        break;
+    case SSLV1_1:
+        method = TLSv1_1_server_method();
+        break;
+    case SSLV1_2:
+        method = TLSv1_2_server_method();
+        break;
+    case SSLV2_3:
+        method = SSLv23_server_method();
+        break;
+    case SSLV3:
+#ifdef OPENSSL_NO_SSL3_METHOD
+        //method = SSLv3_server_method2();
+#endif
+        break;
+    case SSLVAuto:
+        method = TLS_server_method();  //highest available SSL/TLS version
+        break;
+
+    default:
+        break;
+    }
+
+    if(m_pServerSSlCtx && method){
+        ret = SSL_CTX_set_ssl_version(m_pServerSSlCtx, method);
+
+        //SSL_CTX_set_verify_depth(m_pServerSSlCtx, 50);
+        //SSL_CTX_set_options(m_pServerSSlCtx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3); // Use only TLS v1 or later.
+
+        //LOG("SSL_CTX_set_ssl_version() %s", SSL_get_version(m_pServerSSlCtx));
+    }
+    return ret;
+}
 
 SSL_CTX* clsSecureSocket::CreateSSlCtx() {
     SSL_CTX* pSSLCtx = nullptr;
 #ifdef USE_SSL
-    //highest available SSL/TLS version
-    const SSL_METHOD * method =  TLS_server_method();
-    pSSLCtx = SSL_CTX_new(method);
-    //SSL_CTX_set_ssl_version(pSSLCtx, TLSv1_2_server_method());
+    pSSLCtx = SSL_CTX_new(TLS_server_method());
+
 #endif
     return pSSLCtx;
 }

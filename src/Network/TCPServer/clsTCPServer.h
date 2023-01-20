@@ -49,7 +49,7 @@ public:
     bool getSocketKeepAlive() const;
     clsSecureSocket *SSlSocket() const;
     bool SetCertificateSSL(const char *CertPath, const char *KeyPath);
-
+    void SetSSLMethod(SSLMethod value);
 };
 
 #endif // CLSTCPSERVER_H

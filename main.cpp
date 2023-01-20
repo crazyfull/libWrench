@@ -183,8 +183,9 @@ int main(int ac, char **av)
 */
     //Server.AddNewListener(8888, "127.0.0.1", nullptr, onAccepClient);
     Server.AddNewListener(8080, nullptr, nullptr, onAccepClient);
-    Server.SetCertificateSSL("/home/crow/programing/libWrench/cert/public.cer",
-                             "/home/crow/programing/libWrench/cert/sv10.mojz.ir.key");
+    Server.SetCertificateSSL("/home/crow/Downloads/cert/fullchain.cer",
+                             "/home/crow/Downloads/cert/sv2.mojz.ir.key");
+    Server.SetSSLMethod(SSLV1_2);
     Server.Start();
 
     getchar();

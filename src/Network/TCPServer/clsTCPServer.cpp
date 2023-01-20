@@ -101,6 +101,10 @@ bool clsTCPServer::SetCertificateSSL(const char *CertPath, const char *KeyPath)
     return m_pSSlSocket->setSSLConfig(CertPath, KeyPath);
 }
 
+void clsTCPServer::SetSSLMethod(SSLMethod value){
+    m_pSSlSocket->setSSLMethod(value);
+}
+
 void clsTCPServer::AddThreadPool(int threadcount)
 {
     m_pEpoll->AddWorker(threadcount);
