@@ -32,6 +32,7 @@ SSL_CTX* clsSecureSocket::CreateSSlCtx() {
 #endif
     return pSSLCtx;
 }
+
 void clsSecureSocket::FreeSSlCtx() {
 #ifdef USE_SSL
     if (m_pServerSSlCtx) {
@@ -58,6 +59,13 @@ bool clsSecureSocket::setSSLConfig(const char* CertPath, const char* KeyPath) {
         DebugPrint("SSL_CTX_check_private_key() failed");
         return false;
     }
+
+
+    //SSL_CTX_set_ciphersuites(m_pServerSSlCtx, "TLS_CHACHA20_POLY1305_SHA256");
+
+    // Enable server certificate verification. Enable before accepting connections.
+    // SSL_CTX_set_verify(m_pServerSSlCtx, SSL_VERIFY_PEER, NULL);
+
     return true;
 #else
     return false;

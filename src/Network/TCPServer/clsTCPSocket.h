@@ -27,12 +27,13 @@ class clsTCPSocket: public clsIDType
 {
 public:
     //variable
-    enum TCPSocketStatus {Closed = 1
-                          , Closing = 2
-                          , Connecting = 3
-                          , Accepting = 4
-                          , Connected = 5
-                         };
+    enum TCPSocketStatus {
+        Closed = 1
+        , Closing = 2
+        , Connecting = 3
+        , Accepting = 4
+        , Connected = 5
+    };
 
 private:
     //variable
@@ -88,6 +89,7 @@ public:
     int GetSocket() const;
 
     CString GetClientIPString();
+    CString GetSSLError() const;
     uint32_t GetClientIP();
     clsTCPSocket* GetTCPSocket() const;
     bool isReadyForDelete() const;

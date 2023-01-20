@@ -23,7 +23,10 @@ static void onAccepClient(clsTCPListener *pListener, void *pParent, int NewSocke
     LOG("NewSocket(%d)", NewSocket);
 
     clsTCPSocket *newConnection = new clsTCPSocket(&Server);
-    newConnection->Accept(NewSocket, true);
+    if(newConnection->Accept(NewSocket, true) == false){
+
+        LOG("Accept(%s)", newConnection->GetSSLError().Data());
+    }
     return;
 
     if(enableLinger)
