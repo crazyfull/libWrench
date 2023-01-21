@@ -760,7 +760,7 @@ void clsTCPSocket::onReceiving()
         if(bytesRec < 1) {
             int err = SSL_get_error(m_pClientSSlCtx, bytesRec);
             if(err == 6)
-                  SSL_shutdown(m_pClientSSlCtx);
+                SSL_shutdown(m_pClientSSlCtx);
         }
 #endif
     }else{
@@ -828,7 +828,7 @@ ssize_t clsTCPSocket::Send(const char *Buffer, size_t Length)
             if(bytesSent < 1) {
                 int err = SSL_get_error(m_pClientSSlCtx, bytesSent);
                 if(err == 6)
-                      SSL_shutdown(m_pClientSSlCtx);
+                    SSL_shutdown(m_pClientSSlCtx);
             }
 #endif
         }else{
@@ -913,8 +913,13 @@ void clsTCPSocket::ResumeSendFile()
             break;
         }
 
-        sent_bytes = sendfile64(m_socket, m_fdFile, &m_offest, BUFSIZ);
-
+        if(m_pClientSSlCtx){
+#ifdef USE_SSL
+            sent_bytes = SSL_sendfile(m_pClientSSlCtx, m_fdFile, m_offest, BUFSIZ, 0);
+#endif
+        }else{
+            sent_bytes = sendfile64(m_socket, m_fdFile, &m_offest, BUFSIZ);
+        }
 
         if(sent_bytes > 0){
             //remain_data -= sent_bytes;
