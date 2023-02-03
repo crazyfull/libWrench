@@ -10,13 +10,13 @@ clsTCPServer::clsTCPServer(uint MaximumConnection)
     m_pSSlSocket = new clsSecureSocket;
 
     //
-    SocketOptSendRecTimeout = 0;
-    SocketOptReceiveBufferSize = 0;
-    SocketOptSendBufferSize = 0;
-    SocketOptShare = false;
-    SocketOptNoDelay = false;
-    SocketKeepAlive = false;
-    SocketOptLingerTime = 0;
+    m_SocketOptSendRecTimeout = 0;
+    m_SocketOptReceiveBufferSize = 0;
+    m_SocketOptSendBufferSize = 0;
+    m_SocketOptShare = false;
+    m_SocketOptNoDelay = false;
+    m_SocketKeepAlive = false;
+    m_SocketOptLingerTime = 0;
 
 
     //set maximum connection
@@ -30,37 +30,37 @@ clsTCPServer::~clsTCPServer()
 
 int clsTCPServer::getSocketOptSendRecTimeout() const
 {
-    return SocketOptSendRecTimeout;
+    return m_SocketOptSendRecTimeout;
 }
 
 int clsTCPServer::getSocketOptReceiveBufferSize() const
 {
-    return SocketOptReceiveBufferSize;
+    return m_SocketOptReceiveBufferSize;
 }
 
 int clsTCPServer::getSocketOptSendBufferSize() const
 {
-    return SocketOptSendBufferSize;
+    return m_SocketOptSendBufferSize;
 }
 
 int clsTCPServer::getSocketOptLingerTime() const
 {
-    return SocketOptLingerTime;
+    return m_SocketOptLingerTime;
 }
 
 bool clsTCPServer::getSocketOptShare() const
 {
-    return SocketOptShare;
+    return m_SocketOptShare;
 }
 
 bool clsTCPServer::getSocketOptNoDelay() const
 {
-    return SocketOptNoDelay;
+    return m_SocketOptNoDelay;
 }
 
 bool clsTCPServer::getSocketKeepAlive() const
 {
-    return SocketKeepAlive;
+    return m_SocketKeepAlive;
 }
 
 
@@ -131,36 +131,36 @@ clsTCPServer *clsTCPServer::GetTCPServerPointer()
 
 void clsTCPServer::SetSocketSendAndReceiveTimeout(int timeSec)
 {
-    SocketOptSendRecTimeout = timeSec;
+    m_SocketOptSendRecTimeout = timeSec;
 }
 
 void clsTCPServer::SetSocketReceiveBufferSize(int bufferSize)
 {
-    SocketOptReceiveBufferSize = bufferSize;
+    m_SocketOptReceiveBufferSize = bufferSize;
 }
 
 void clsTCPServer::SetSocketSendBufferSize(int bufferSize)
 {
-    SocketOptSendBufferSize = bufferSize;
+    m_SocketOptSendBufferSize = bufferSize;
 }
 
 void clsTCPServer::SetSocketShare(bool isEnable)
 {
-    SocketOptShare = isEnable;
+    m_SocketOptShare = isEnable;
 }
 
 void clsTCPServer::SetSocketNoDelay(bool isEnable)
 {
-    SocketOptNoDelay = isEnable;
+    m_SocketOptNoDelay = isEnable;
 }
 
 void clsTCPServer::SetSocketKeepAlive(bool isEnable)
 {
-    SocketKeepAlive = isEnable;
+    m_SocketKeepAlive = isEnable;
 }
 
 void clsTCPServer::SetSocketLinger(int Timeout)
 {
-    SocketOptLingerTime = Timeout;
+    m_SocketOptLingerTime = Timeout;
 }
 

@@ -8,13 +8,13 @@ class clsTCPServer
 {
 private:
 
-    int SocketOptSendRecTimeout;
-    int SocketOptReceiveBufferSize;
-    int SocketOptSendBufferSize;
-    int SocketOptLingerTime;
-    bool SocketOptShare;
-    bool SocketOptNoDelay;
-    bool SocketKeepAlive;
+    int m_SocketOptSendRecTimeout;
+    int m_SocketOptReceiveBufferSize;
+    int m_SocketOptSendBufferSize;
+    int m_SocketOptLingerTime;
+    bool m_SocketOptShare;
+    bool m_SocketOptNoDelay;
+    bool m_SocketKeepAlive;
     clsEpollManager* m_pEpoll;
     clsSecureSocket* m_pSSlSocket;
 
