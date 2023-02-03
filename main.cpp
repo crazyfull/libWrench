@@ -1,5 +1,4 @@
-
-
+#include <openssl/crypto.h>
 #ifdef libWrenchApp
 
 #include <stdio.h>
@@ -159,6 +158,10 @@ int main(int ac, char **av)
     Server.SetSocketSendAndReceiveTimeout(60);    //6 sec
     */
 
+    LOG("openssl version: (%lu), %s", SSLeay(), SSLeay_version(SSLEAY_VERSION));
+
+
+
     clsTCPSocket *TCP = new clsTCPSocket(&Server);
 
     /*
@@ -185,7 +188,9 @@ int main(int ac, char **av)
     Server.AddNewListener(8080, nullptr, nullptr, onAccepClient);
     Server.SetCertificateSSL("/home/crow/Downloads/cert/fullchain.cer",
                              "/home/crow/Downloads/cert/sv2.mojz.ir.key");
-    Server.SetSSLMethod(SSLV1_2);
+
+
+    Server.SetSSLMethod(SSLV2_3);
     Server.Start();
 
     getchar();
