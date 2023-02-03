@@ -1,11 +1,12 @@
 #ifndef CLSSECURESOCKET_H
 #define CLSSECURESOCKET_H
 
+
 #ifndef USE_SSL
 class SSL_CTX;
 class SSL;
 #else
-#include <openssl/types.h>
+#include <openssl/ssl.h>
 #endif
 
 enum SSLMethod{

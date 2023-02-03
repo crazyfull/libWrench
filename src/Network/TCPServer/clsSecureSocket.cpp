@@ -74,6 +74,8 @@ SSL_CTX* clsSecureSocket::CreateSSlCtx() {
 #ifdef USE_SSL
     pSSLCtx = SSL_CTX_new(TLS_server_method());
 
+    //SSL_CTX_set_mode(pSSLCtx, SSL_MODE_ENABLE_PARTIAL_WRITE);
+
 #endif
     return pSSLCtx;
 }
@@ -113,8 +115,14 @@ bool clsSecureSocket::setSSLConfig(const char* CertPath, const char* KeyPath) {
     // SSL_VERIFY_NONE
 
     //he application will request and verify the certificate for the remote client application when the SSL session is started
-    //SSL_CTX_set_verify(m_pServerSSlCtx, SSL_VERIFY_PEER, NULL);
+    SSL_CTX_set_verify(m_pServerSSlCtx, SSL_VERIFY_NONE, NULL);
 
+    //need set for epoll
+    SSL_CTX_set_mode(m_pServerSSlCtx,  SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+
+    //
+    const long flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION | SSL_OP_NO_TICKET;
+    SSL_CTX_set_options(m_pServerSSlCtx, flags);
     return true;
 #else
     return false;
@@ -128,7 +136,10 @@ SSL* clsSecureSocket::newClientSSL(int fd) {
     pClientSSlCtx = SSL_new(m_pServerSSlCtx);
     if(pClientSSlCtx){
         //Bind the ssl object with the socket
+        SSL_set_accept_state(pClientSSlCtx);
         SSL_set_fd(pClientSSlCtx, fd);
+
+
     }
 #endif
     return pClientSSlCtx;
