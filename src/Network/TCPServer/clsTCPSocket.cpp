@@ -54,6 +54,7 @@ void clsTCPSocket::OnAccepted()
 
 void clsTCPSocket::OnReceiveData(const char *Buffer, int Length)
 {
+#ifdef libWrenchApp
     /*
     LOG("clsTCPSocket::OnReceiveData[%s][%d]", Buffer, Length);
 
@@ -62,7 +63,13 @@ void clsTCPSocket::OnReceiveData(const char *Buffer, int Length)
                            "\r\n"
                            "Chetori g";
     Send(szEchoMessage);
-*/
+
+    LOG("clsTCPSocket::OnReceiveData[%s][%d]", Buffer, Length);
+
+    int fdFile = open("/home/crow/Downloads/qt-everywhere-src-6.4.0.tar.xz", O_RDONLY);
+    SendFile(fdFile);
+ */
+#endif
 }
 
 void clsTCPSocket::OnClosed()
@@ -365,14 +372,27 @@ void clsTCPSocket::SetSocketLinger(int fd, int Timeout = 0)
 {
     //age ba socket packet ersal konim va belafasele close konim momkene packet ersal nashe, ba Linger ye time moshakhas mikonim ke packet bad az ersal shodan close mishe
     int iOption = 0;
-    if(Timeout > 0)
+    if(Timeout >= 0)
         iOption = 1;
-    struct linger lo = {iOption, Timeout};
+
+    struct linger lo =
+    {
+        iOption,
+        Timeout
+    };
+
     int isErr = setsockopt(fd, SOL_SOCKET, SO_LINGER, &lo, sizeof(lo));
     if(isErr != 0)
     {
         DebugPrint("error setsockopt set flag SO_LINGER, error[%d]", ERRNO);
     }
+}
+
+void getSocketLinget(int fd){
+    struct linger lo ={0, 0};
+    socklen_t len = sizeof(lo);
+    getsockopt(fd, SOL_SOCKET, SO_LINGER,  &lo, &len);
+    LOG("getSocketLinget enable[%d], time:[%d]", lo.l_onoff, lo.l_linger);
 }
 
 bool clsTCPSocket::SetSocketSendAndReceiveTimeOut(int fd, int secTime)
@@ -399,8 +419,7 @@ bool clsTCPSocket::isSocketHaveError()
     int code;
     socklen_t len = sizeof(int);
     ret = getsockopt(m_socket, SOL_SOCKET, SO_ERROR, &code, &len);
-    if ((ret || code)!= 0)
-    {
+    if ((ret || code)!= 0){
         return true;
     }
     return false;
@@ -547,6 +566,7 @@ bool clsTCPSocket::Accept(int new_socket, bool useSSL)
 
     //Alive Socket
     //SetKeepAlive(m_socket, true);
+    //getSocketLinget(m_socket);
 
     //change status...
     _SetStatus(Connected);
@@ -719,6 +739,10 @@ void clsTCPSocket::onConnected()
     //change modify for remove EPOLLOUT
     m_Event.events = EPOLL_EVENTS_TCP_MULTITHREAD_NONBLOCKING;
 
+
+    //for ssl
+    //SSL_set_connect_state
+
     //change status...
     _SetStatus(Connected);
 
@@ -759,7 +783,7 @@ void clsTCPSocket::onReceiving()
 
         if(bytesRec < 1) {
             int err = SSL_get_error(m_pClientSSlCtx, bytesRec);
-            if(err == 6)
+            if(err == SSL_ERROR_ZERO_RETURN)
                 SSL_shutdown(m_pClientSSlCtx);
         }
 #endif
@@ -827,8 +851,12 @@ ssize_t clsTCPSocket::Send(const char *Buffer, size_t Length)
             bytesSent = SSL_write(m_pClientSSlCtx, pBuffer, pBufferLength);
             if(bytesSent < 1) {
                 int err = SSL_get_error(m_pClientSSlCtx, bytesSent);
-                if(err == 6)
+                DebugPrint("SSL_write error [%d]", err);
+                if(err == SSL_ERROR_ZERO_RETURN){
                     SSL_shutdown(m_pClientSSlCtx);
+                }else{
+                }
+
             }
 #endif
         }else{
@@ -886,11 +914,14 @@ void clsTCPSocket::CloseFile(){
     }
 }
 
-void clsTCPSocket::ResumeSendFile()
-{
 
+/*
+void clsTCPSocket::ResumeSendFile2()
+{
     if (Status != Connected)
         return;
+
+    LOG("call clsTCPSocket::ResumeSendFile(%lu)", pthread_self());
 
 
     //read file
@@ -904,9 +935,11 @@ void clsTCPSocket::ResumeSendFile()
     m_Event.events = EPOLL_EVENTS_TCP_MULTITHREAD_NONBLOCKING;
 
     ssize_t sent_bytes = 0;
+    int sslErr = 0;
     //long remain_data = FileSize;
 
-    /* Sending file data */
+    // Sending file data
+
     while (1)
     {
         if (Status != Connected){
@@ -914,16 +947,165 @@ void clsTCPSocket::ResumeSendFile()
         }
 
         if(m_pClientSSlCtx){
+
+
+            // sent_bytes = SSL_sendfile(m_pClientSSlCtx, m_fdFile, m_offest, BUFSIZ, 0);
+
+            char bufferFile[BUFSIZ+1];
+            memset(bufferFile, 0, BUFSIZ);
+            ssize_t readFileSize = 0;
+
+
+            readFileSize = pread(m_fdFile, bufferFile, BUFSIZ, m_offest);
+            if(readFileSize == ISINVALID){
+                DebugPrint("can not read the file");
+            }
+
+            if(readFileSize == 0){
+                //end read
+                DebugPrint(" --- readFileSize = 0");
+                Close(false);
+                break;
+            }
+
+            if(readFileSize < 0){
+                DebugPrint(" --- readFileSize = -1");
+                Close(false);
+                break;
+            }
+
+
+
+            if(readFileSize > 0){
+                sent_bytes = SSL_write(m_pClientSSlCtx, bufferFile, readFileSize);
+
+                LOG("SSL_write sent_bytes: [%zd] m_offest [%zd] readFileSize[%zd] SSL_pending [%d]", sent_bytes, m_offest, readFileSize, SSL_has_pending(m_pClientSSlCtx));
+                if(sent_bytes < 0) {
+                    //usleep(1000000);
+                    int err = SSL_get_error(m_pClientSSlCtx, sent_bytes);
+                    DebugPrint("SSL_write error [%d]", err);
+
+                    if(err == SSL_ERROR_ZERO_RETURN || err == SSL_ERROR_SSL){
+                        SSL_shutdown(m_pClientSSlCtx);
+                        DebugPrint("SSL_shutdown");
+                        break;
+                    }
+
+                    if(err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE || err == SSL_ERROR_WANT_X509_LOOKUP) {
+                        LOG("Write could not complete. Will be invoked later.");
+                        LOG("sendfile errno[%d]", errno);
+                        if(errno == EAGAIN || errno == EWOULDBLOCK){
+
+                        }
+
+                        //SSL_has_pending(m_pClientSSlCtx);
+
+                        //SSL_set_wfd(m_fdFile);
+                        m_Event.events = EPOLLOUT;
+                        return;
+                    }
+
+                    //if(err == SSL_ERROR_WANT_WRITE) continue;
+                    //Close(false);
+                    // break;
+                }
+
+                if(sent_bytes > 0){
+                    m_offest += sent_bytes;
+                    continue;
+                }
+            }
+
+
+        }
+    }
+}
+*/
+
+void clsTCPSocket::ResumeSendFile()
+{
+    if (Status != Connected)
+        return;
+
+    //read file
+    if(m_fdFile <= 0){
+        DebugPrint("invalid fd file!");
+        Close(false);
+        return;
+    }
+
+    //back to normal event
+    m_Event.events = EPOLL_EVENTS_TCP_MULTITHREAD_NONBLOCKING;
+
+    ssize_t sent_bytes = 0;
+    int sslErr = 0;
+
+    // Sending file data
+    while (1)
+    {
+        if (Status != Connected){
+            break;
+        }
+
+        if(m_pClientSSlCtx)
+        {
 #ifdef USE_SSL
-            sent_bytes = SSL_sendfile(m_pClientSSlCtx, m_fdFile, m_offest, BUFSIZ, 0);
+
+            char bufferFile[BUFSIZ+1];
+            memset(bufferFile, 0, BUFSIZ);
+            ssize_t readFileSize = 0;
+
+            readFileSize = pread(m_fdFile, bufferFile, BUFSIZ, m_offest);
+            if(readFileSize == ISINVALID){
+                DebugPrint("can not read the file");
+            }
+
+            //end of reading
+            if(readFileSize == 0){
+                //LOG("ssl_sendfile don");
+                //Close(true);
+                CloseFile();
+                OnSendFileComplete();
+                break;
+            }
+
+            //error on reading
+            if(readFileSize < 0){
+                DebugPrint(" --- readFileSize = -1");
+                Close(false);
+                break;
+            }
+
+            if(readFileSize > 0){
+                sent_bytes = SSL_write(m_pClientSSlCtx, bufferFile, readFileSize);
+                if(sent_bytes < 0) {
+                    //usleep(100000);
+                    int err = SSL_get_error(m_pClientSSlCtx, sent_bytes);
+
+                    if(err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE || err == SSL_ERROR_WANT_X509_LOOKUP) {
+                        //LOG("ssl_Write err: [%d]", err);
+                        m_Event.events = EPOLL_EVENTS_TCP_MULTITHREAD_NONBLOCKING | EPOLLOUT;
+                        return;
+                    }
+
+                    DebugPrint("SSL_write error [%d]", err);
+                    Close(false);
+                    return;
+                }
+
+                if(sent_bytes > 0){
+                    m_offest += sent_bytes;
+                    continue;
+                }
+            }
+
+
 #endif
         }else{
             sent_bytes = sendfile64(m_socket, m_fdFile, &m_offest, BUFSIZ);
         }
 
         if(sent_bytes > 0){
-            //remain_data -= sent_bytes;
-            //LOG("sendfile [%ld] offset[%ld] remain_data[%ld]", sent_bytes, offest, remain_data);
             //LOG("sent_bytes [%ld] m_offest[%ld]", sent_bytes, m_offest);
             OnSendFileStatus(m_offest);
             continue;
@@ -931,18 +1113,13 @@ void clsTCPSocket::ResumeSendFile()
 
         //send complate
         if(sent_bytes == 0){
-
-            //LOG("sendfile don");
-            //usleep(100000);
-
-            //Close(true);
-            //m_fdFile = 0;
+            LOG("sendfile don");
             CloseFile();
             OnSendFileComplete();
             break;
         }
 
-        if(sent_bytes == ISINVALID){
+        if(sent_bytes < 0){
 
             if (Status != Connected)
                 break;
@@ -951,10 +1128,12 @@ void clsTCPSocket::ResumeSendFile()
             m_Event.events = EPOLL_EVENTS_TCP_MULTITHREAD_NONBLOCKING | EPOLLOUT;
 
             //LOG("sendfile errno[%d]", errno); //EAGAIN
-            if(errno == EAGAIN){
+            if(errno == EAGAIN || errno == EWOULDBLOCK){
                 //set time for last send
                 //usleep(100000);
-                //continue;
+                break;
+            }else if (errno == EBADF || errno == EPIPE || errno == ECONNRESET){
+                LOG("sendfile2 errno[%d]", errno);
                 break;
             }else{
                 //other errors
@@ -967,6 +1146,7 @@ void clsTCPSocket::ResumeSendFile()
 
     }
 }
+
 
 void clsTCPSocket::Close(bool isShutdown)
 {
