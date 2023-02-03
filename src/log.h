@@ -1,6 +1,6 @@
 #ifndef LOGING_H
 #define LOGING_H
-
+#include <cstring>
     #ifdef NDEBUG
         #define DebugPrint(...) (void)0
     #else
