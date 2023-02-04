@@ -522,6 +522,15 @@ bool clsTCPSocket::Accept(int new_socket, bool useSSL)
             return false;
         }
 
+        /*
+        X509 *cert = nullptr;
+        if (cert == SSL_get_peer_certificate(m_pClientSSlCtx))
+        {
+            DebugPrint("SSL_get_peer_certificate error");
+            Close();
+            return false;
+        }*/
+
         // Check for Client authentication error
         if (SSL_get_verify_result(m_pClientSSlCtx) != X509_V_OK) {
             DebugPrint("SSL Client Authentication error");
@@ -1154,10 +1163,10 @@ void clsTCPSocket::Close(bool isShutdown)
         return;
     }
 
-    //bool isShutDown = false;
     if (Status == Connected)
         isShutdown = true;
 
+    //isShutdown = false;
     //clean ssl socket
 #ifdef USE_SSL
     if(m_pClientSSlCtx){
@@ -1182,10 +1191,8 @@ void clsTCPSocket::Close(bool isShutdown)
         return;
     }
 
-
     //change status...
     _SetStatus(Closing);
-
 
     //
     CloseFile();
@@ -1200,12 +1207,14 @@ void clsTCPSocket::Close(bool isShutdown)
 
     if(isShutdown == true)
     {
-        shutdown(m_socket, SHUT_RDWR);//SHUT_RDWR
+        //shutdown(m_socket, SHUT_RDWR);  //SHUT_RDWR
         //LOG("shutdown, sock:[%d]", m_socket);
+        CloseFinal();
     }else{
         //remove of epoll manager
-        if(m_socket != ISINVALID || m_socket != 0)
+        if(m_socket != ISINVALID || m_socket != 0){
             m_pServer->RemoveSocketFromEventsPoll(this);
+        }
     }
 
 }
