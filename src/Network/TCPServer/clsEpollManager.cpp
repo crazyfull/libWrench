@@ -37,7 +37,8 @@ uint clsEpollManager::MaxConnection() const
 
 void clsEpollManager::_onStartWorker(clsThread *pTherad, void* pArg)
 {
-    clsEpollManager *This = (clsEpollManager*)pArg;
+    clsEpollManager *This = static_cast<clsEpollManager*>(pArg);
+
     This->_OnWaitForNewEvenet(pTherad);
 }
 
