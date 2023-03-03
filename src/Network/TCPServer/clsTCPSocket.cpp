@@ -1122,7 +1122,7 @@ void clsTCPSocket::ResumeSendFile()
 
         //send complate
         if(sent_bytes == 0){
-            LOG("sendfile don");
+            //LOG("sendfile don");
             CloseFile();
             OnSendFileComplete();
             break;
