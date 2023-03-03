@@ -16,7 +16,7 @@ contains(DEFINES, libWrenchApp){
     DEFINES += libWrench
     #CONFIG += c++11 staticlib
     TARGET = libWrench
-    VERSION = 1.3.16
+    VERSION = 1.3.18
 }
 
 #c++ 11 & static build
@@ -73,6 +73,11 @@ DEPENDPATH += $$PWD/src/Network/TCPServer
 INCLUDEPATH += $$PWD/src/Network/DNSLookup
 DEPENDPATH += $$PWD/src/Network/DNSLookup
 
+#source Headers
+INCLUDEPATH += $$PWD/src/LinuxService
+DEPENDPATH += $$PWD/src/LinuxService
+
+
 SOURCES += main.cpp \
     src/Cryptography/cipher/Base64/base64.c \
     src/Cryptography/cipher/Base64/clsBase64.cpp \
@@ -84,6 +89,7 @@ SOURCES += main.cpp \
     src/Cryptography/hash/sha256.c \
     src/Cryptography/hash/sha512.c \
     src/Files/clsFileDirectory.cpp \
+    src/LinuxService/clsLinuxService.cpp \
     src/Network/DNSLookup/clsDNSHeader.cpp \
     src/Network/DNSLookup/clsDNSLookup.cpp \
     src/Network/DNSLookup/clsDNSPackets.cpp \
@@ -113,6 +119,7 @@ HEADERS +=  src/clsThread.h \
     src/Cryptography/hash/sha256.h \
     src/Cryptography/hash/sha512.h \
     src/Files/clsFileDirectory.h \
+    src/LinuxService/clsLinuxService.h \
     src/Network/DNSLookup/clsDNSHeader.h \
     src/Network/DNSLookup/clsDNSLookup.h \
     src/Network/DNSLookup/clsDNSPackets.h \
