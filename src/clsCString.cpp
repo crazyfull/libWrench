@@ -666,6 +666,14 @@ CString &CString::operator +=(const char *text)
     }
 }
 
+
+CString &CString::operator +=(const CString &text)
+{
+    if(!text.isEmpty()){
+        append(text);
+    }
+}
+
 const char* CString::operator + (const char *text)
 {
     if(text){

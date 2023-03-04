@@ -27,9 +27,10 @@ public:
     CString &operator = (const CString *other);
     CString &operator = (const char *text);
     CString &operator = (int Number);
+    CString &operator += (const CString &text);
     CString &operator += (const char *text);
     bool operator == (const char *text);
-    bool operator ==(const char *text) const;
+    bool operator == (const char *text) const;
 
     CString &operator << (const char *text);
     CString &operator << (int Number);
