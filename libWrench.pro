@@ -99,6 +99,7 @@ SOURCES += main.cpp \
     src/Network/TCPServer/clsTCPListener.cpp \
     src/Network/TCPServer/clsTCPServer.cpp \
     src/Network/TCPServer/clsTCPSocket.cpp \
+    src/Network/pipe/clsPipe.cpp \
     src/cJSON/cJSON.c \
     src/clsCString.cpp \
     src/clsThread.cpp \
@@ -130,6 +131,7 @@ HEADERS +=  src/clsThread.h \
     src/Network/TCPServer/clsTCPListener.h \
     src/Network/TCPServer/clsTCPServer.h \
     src/Network/TCPServer/clsTCPSocket.h \
+    src/Network/pipe/clsPipe.h \
     src/cJSON/cJSON.h \
     src/clsCString.h \
     src/clsThreadTimer.h \
