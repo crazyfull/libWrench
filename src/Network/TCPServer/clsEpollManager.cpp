@@ -160,7 +160,6 @@ void clsEpollManager::_OnWaitForNewEvenet(clsThread *pTherad)
         }
 
         // parse eventes
-
         _ParseEvents(pTCPSocket, &EpollEvent);
 
 

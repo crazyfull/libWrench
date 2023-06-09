@@ -51,7 +51,6 @@ private:
 
     //functions
     void _SetStatus(const TCPSocketStatus &value);
-    bool ModifyEvent();
     void CloseFile();
 
 public:

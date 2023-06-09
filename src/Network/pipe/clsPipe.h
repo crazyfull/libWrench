@@ -29,9 +29,9 @@ public:
 
     static void SendMessage(const char *socketName, const char*msg);
     static void SendMessage(const char *socketName, const char*msg, int msgLenth);
-    static std::string ReceiveMessage(int sock, int Timeout = 15);
+    static std::string ReceiveMessage(const char *socketName,int sock, int Timeout = 17);
     //
-    virtual void OnReceiveMessage(const char*msg, int msgLenth);
+    virtual void OnPipeReceiveMessage(const char*msg, int msgLenth);
 
 };
 

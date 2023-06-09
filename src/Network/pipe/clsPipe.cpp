@@ -1,5 +1,5 @@
 #include "clsPipe.h"
-
+#include "log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,11 +22,11 @@ clsPipe::~clsPipe()
     killThread();
 }
 
-void clsPipe::OnReceiveMessage(const char *msg, int msgLenth)
+void clsPipe::OnPipeReceiveMessage(const char *msg, int msgLenth)
 {
     //
-    printf("OnReceiveMessage: [%s]\n", msg);
-    SendMessage("pipebache", "hi from server");
+    //DebugPrint("OnReceiveMessage: [%s]\n", msg);
+    //SendMessage("pipebache", "hi from server");
 }
 
 
@@ -47,12 +47,12 @@ void clsPipe::SetTimeout(int fd, int TimeOutSec){
 
     int isErr = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(timeval));
     if(isErr != 0) {
-        printf("error setsockopt set flag SO_RCVTIMEO, error[%d]\n", errno);
+        DebugPrint("error setsockopt set flag SO_RCVTIMEO, error[%d]\n", errno);
     }
 
     isErr =  setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&tv, sizeof(timeval));
     if(isErr != 0) {
-        printf("error setsockopt set flag SO_SNDTIMEO, error[%d]\n", errno);
+        DebugPrint("error setsockopt set flag SO_SNDTIMEO, error[%d]\n", errno);
     }
 }
 
@@ -76,7 +76,7 @@ void clsPipe::setSocketPath(sockaddr_un *pSockAddr, const char *socketName)
 bool clsPipe::Listen(const char *socketName)
 {
     if(m_svSock!=0){
-        printf("socket is not close\n");
+        DebugPrint("socket is not close\n");
         return false;
     }
 
@@ -87,7 +87,6 @@ bool clsPipe::Listen(const char *socketName)
     struct sockaddr_un addr;
 
 
-
     // Bind the socket to a path
     memset(&addr, 0, sizeof(struct sockaddr_un));
     addr.sun_family = AF_UNIX;  //AF_LOCAL; //AF_UNIX;
@@ -96,7 +95,7 @@ bool clsPipe::Listen(const char *socketName)
     // Create a socket
     m_svSock = socket(AF_UNIX, SOCK_DGRAM, 0);
     if (m_svSock == -1) {
-        perror("socket");
+        DebugPrint("can no create socket");
         return false;
     }
 
@@ -106,14 +105,10 @@ bool clsPipe::Listen(const char *socketName)
 
     remove(addr.sun_path);
     if (bind(m_svSock, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) == -1) {
-        perror("bind");
+        DebugPrint("cann not bind");
         StopListen();
         return false;
     }
-
-
-    printf("Accepted connection from [%s]\n", addr.sun_path);
-    printf("Reading...\n");
 
     // Read data from the client
     m_Thread = std::thread(onThread, this);
@@ -165,7 +160,7 @@ void clsPipe::SendMessage(const char*socketName, const char *msg, int msgLenth)
     // Create a socket
     sockfd = socket(AF_UNIX, SOCK_DGRAM, 0);
     if (sockfd == -1) {
-        perror("socket");
+        DebugPrint("can not create socket");
         return;
     }
 
@@ -182,7 +177,7 @@ void clsPipe::SendMessage(const char*socketName, const char *msg, int msgLenth)
 
     ssize_t bytes_written = sendto(sockfd, msg, msgLenth, MSG_CONFIRM, (struct sockaddr *)&addr, client_len);
     if (bytes_written == -1) {
-        perror("sendto");
+        DebugPrint("sendto error");
     }
 
     close(sockfd);
@@ -202,7 +197,7 @@ int clsPipe::CreateReceiver(const char *socketName)
     // Create a socket
     recSock = socket(AF_UNIX, SOCK_DGRAM, 0);
     if (recSock == -1) {
-        perror("socket");
+        DebugPrint("can not create socket");
         close(recSock);
         return -1;
     }
@@ -212,7 +207,7 @@ int clsPipe::CreateReceiver(const char *socketName)
 
     remove(addr.sun_path);
     if (bind(recSock, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) == -1) {
-        perror("bind");
+        DebugPrint("can not bind");
         close(recSock);
         return -1;
     }
@@ -220,7 +215,7 @@ int clsPipe::CreateReceiver(const char *socketName)
     return recSock;
 }
 
-std::string clsPipe::ReceiveMessage(int sock, int Timeout)
+std::string clsPipe::ReceiveMessage(const char *socketName, int sock, int Timeout)
 {
     std::string ret;
     SetTimeout(sock, Timeout);
@@ -229,14 +224,16 @@ std::string clsPipe::ReceiveMessage(int sock, int Timeout)
     char buffer[BUFFER_SIZE+1] = {0};
     ssize_t bytes_read = recvfrom(sock, buffer, BUFFER_SIZE, MSG_WAITALL,  (struct sockaddr *)&client_addr, &client_len);
     if (bytes_read == -1 || bytes_read == 0) {
-        perror("read");
-        close(sock);
-        return ret;
+        DebugPrint("recvfrom error");
     }else{
         buffer[bytes_read] = 0;
         ret.append(buffer, bytes_read);
     }
 
+    std::string sockpath = SOCKET_PATH ;
+    sockpath.append(socketName);
+
+    remove(sockpath.c_str());
     close(sock);
     return ret;
 }
@@ -250,11 +247,11 @@ void clsPipe::_onReading()
         char buffer[BUFFER_SIZE+1] = {0};
         ssize_t bytes_read = recvfrom(m_svSock, buffer, BUFFER_SIZE, MSG_WAITALL,  (struct sockaddr *)&client_addr, &client_len);
         if (bytes_read == -1 || bytes_read == 0) {
-            perror("read");
+            DebugPrint("recvfrom error");
             break;
         }else{
             buffer[bytes_read] = 0;
-            OnReceiveMessage(buffer, bytes_read);
+            OnPipeReceiveMessage(buffer, bytes_read);
         }
     }
 

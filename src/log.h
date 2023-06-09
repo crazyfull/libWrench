@@ -19,6 +19,26 @@
         #define LOG(...) do{ \
         printf(__VA_ARGS__); \
         printf("\n");} while(0);
+
+    enum Color {
+        Red,
+        Green,
+        Blue,
+        Yellow,
+        Black,
+        White,
+    };
+
+    #define LOG_COLOR(color, ...) do{ \
+        if (color == Red)   printf("\033[31m", color); \
+        if (color == Green) printf("\033[32m", color); \
+        if (color == Yellow)printf("\033[33m", color); \
+        if (color == Blue)  printf("\033[34m", color); \
+        if (color == Black)  printf("\033[30m", color); \
+        if (color == White)  printf("\033[37m", color); \
+        printf(__VA_ARGS__); \
+    printf("\033[0m");} while(0);
+
     #endif
 
     #define ZERO (0)
