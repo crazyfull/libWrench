@@ -1,8 +1,8 @@
 #include "clsLinuxService.h"
 #include <cstring>
-#include <Wrench/clsCString.h>
-#include <Wrench/clsFileDirectory.h>
-#include <Wrench/log.h>
+#include "clsCString.h"
+#include "clsFileDirectory.h"
+#include "log.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <stdio.h>
