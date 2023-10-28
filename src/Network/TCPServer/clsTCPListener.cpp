@@ -23,7 +23,7 @@ clsTCPListener::clsTCPListener(clsTCPServer *pServer)
     m_pEpollManage = NULL;
     m_Acceptcallback = NULL;
     m_AcceptcallbackPointer = NULL;
-    setIDType(1);
+    setIDType(IS_TCP_LISTENER);
     setPtrID(this);
 }
 

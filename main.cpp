@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "clsTCPServer.h"
 #include "clsTCPSocket.h"
+#include "clsUDPServer.h"
 #include <string>
 #include <clsCString.h>
 #include <clsDNSLookup.h>
@@ -14,6 +15,7 @@
 //netstat -n | awk '/^tcp/ {t[$NF]++}END{for(state in t){print state, t[state]} }'
 using namespace std;
 clsTCPServer Server(800);
+clsUDPServer UDPserver(1000);
 bool enableLinger = false;
 
 
@@ -63,8 +65,16 @@ static void onThread1(clsThread *pTherad, void* pArg){
 }
 
 
+void udp_main(){
+    UDPserver.AddNewListener(8080, nullptr, nullptr,0);
+    UDPserver.Start();
+    getchar();
+    exit(0);
+}
 int main(int ac, char **av)
 {
+
+    udp_main();
 
     /*
     if(FileDirectory::CreateDirectory("gooz")){
@@ -161,10 +171,8 @@ int main(int ac, char **av)
     LOG("openssl version: (%lu), %s", SSLeay(), SSLeay_version(SSLEAY_VERSION));
 
 
-
+/*
     clsTCPSocket *TCP = new clsTCPSocket(&Server);
-
-    /*
     for(int i = 0; i < 100;i++){
 
         TCP->ConnectToHost("client.openwrt-upgrade.net", 3333, TIMEOUT_66Sec);

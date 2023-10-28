@@ -18,7 +18,7 @@ private:
     uint m_MaxConnection;
     uint m_Count;
     pthread_mutex_t m_Mutex;
-    clsTCPServer *m_pTCPServer;
+    //clsTCPServer *m_pTCPServer;
 
 
     bool _Create(uint MaxConnection);
@@ -35,6 +35,7 @@ public:
 
     //Functions
     clsEpollManager(clsTCPServer *pTCPServer, uint MaxConnection);
+    clsEpollManager(uint MaxConnection);
     ~clsEpollManager();
 
     void AddWorker(int workerCount);

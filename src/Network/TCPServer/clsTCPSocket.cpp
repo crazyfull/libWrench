@@ -22,7 +22,7 @@ clsTCPSocket::clsTCPSocket(clsTCPServer *pServer)
     ClientIP.s_addr = 0;
     m_fdFile = 0;
     m_offest = 0;
-    setIDType(2);
+    setIDType(IS_TCP_SOCKET);
     setPtrID(this);
 
 }

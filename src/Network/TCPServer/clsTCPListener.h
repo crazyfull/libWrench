@@ -32,7 +32,7 @@ public:
     ~clsTCPListener();
 
     //public functions
-    bool StartListen(uint16_t GetListenPort, const char *bindIP, clsEpollManager *pEpollManager);
+    bool StartListen(uint16_t Port, const char *bindIP, clsEpollManager *pEpollManager);
     void StopListen();
     int GetSocket() const;
     void _setAcceptCallback(void* p, AcceptCallbackType Acceptcallback);

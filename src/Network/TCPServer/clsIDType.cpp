@@ -2,7 +2,7 @@
 
 clsIDType::clsIDType()
 {
-    setIDType(0);
+    setIDType(IS_NOT_SET);
     setPtrID(nullptr);
 }
 
@@ -21,9 +21,9 @@ void clsIDType::setPtrID(void *value)
     m_pPtr = value;
 }
 
-bool clsIDType::isListenerClass()
+bool clsIDType::isTCPListenerClass()
 {
-    if(IDType == 1){
+    if(IDType == IS_TCP_LISTENER){
         return true;
     }
     return false;
@@ -32,6 +32,11 @@ bool clsIDType::isListenerClass()
 clsIDType *clsIDType::getClassIDPtr()
 {
     return this;
+}
+
+clsUDPListener *clsIDType::getUDPListenerPtr()
+{
+    return static_cast<clsUDPListener*>(m_pPtr);
 }
 
 clsTCPListener *clsIDType::getTCPListenerPtr()

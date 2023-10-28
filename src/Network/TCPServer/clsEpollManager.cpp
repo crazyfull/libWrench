@@ -1,4 +1,5 @@
 #include "clsEpollManager.h"
+#include "clsUDPServer.h"
 #include "clsTCPServer.h"
 #include "clsTCPSocket.h"
 #include "log.h"
@@ -8,8 +9,23 @@ clsEpollManager::clsEpollManager(clsTCPServer *pTCPServer, uint MaxConnection)
     m_epollSocket = 0;
     m_MaxConnection = 0;
     m_Count = 0;
-    m_pTCPServer = pTCPServer;
+    //m_pTCPServer = pTCPServer;
 
+    if (pthread_mutex_init(&m_Mutex, NULL) != 0)
+    {
+        DebugPrint("mutex init failed");
+        return;
+    }
+
+    //init epool and set max connections
+    _Create(MaxConnection);
+}
+
+clsEpollManager::clsEpollManager(uint MaxConnection)
+{
+    m_epollSocket = 0;
+    m_MaxConnection = 0;
+    m_Count = 0;
 
     if (pthread_mutex_init(&m_Mutex, NULL) != 0)
     {
@@ -103,6 +119,8 @@ void clsEpollManager::_OnWaitForNewEvenet(clsThread *pTherad)
         struct epoll_event EpollEvent;
         int ress = epoll_wait(m_epollSocket, &EpollEvent, 1, 5000);
 
+        //LOG("get events[%u]", EpollEvent.events);
+
         if(ress == ISINVALID){
             if(errno == EINTR){
                 DebugPrint("Interrupted system call, err:(%d)", ERRNO);
@@ -127,10 +145,49 @@ void clsEpollManager::_OnWaitForNewEvenet(clsThread *pTherad)
             continue;
         }
 
+        if(ID->getIDType() == IS_UDP_LISTENER ){
+
+            clsUDPListener *pUDPListener = ID->getUDPListenerPtr();
+
+            LOG("IS_UDP_LISTENER[%u]", EpollEvent.events);
+
+            if (EpollEvent.events & EPOLLIN){
+
+                /*client*/
+                struct sockaddr_in m_TargetAddress;
+                memset(&m_TargetAddress, 0, sizeof(m_TargetAddress));
+
+                /*on receive data*/
+                char buffer[(1024*8)+1];
+                //struct sockaddr_in client_address;
+                socklen_t client_address_length;
+                //memset(&m_TargetAddress, 0, sizeof(m_TargetAddress));
+                int bytes_received = recvfrom(pUDPListener-> GetSocket(), buffer, sizeof(buffer), 0, (struct sockaddr *)&m_TargetAddress, &client_address_length);
+                if (bytes_received < 0) {
+                    DebugPrint("Error receiving datagram");
+                    continue;
+                }
+
+                buffer[bytes_received] = 0;
+                LOG("recvfrom[%s]", buffer);
+
+
+                _MutexLock();
+                ModifySocket(pUDPListener->GetSocket(), pUDPListener->Event());
+                _MutexUnlock();
+
+                continue;
+            }
+
+
+            continue;
+        }
+
         //LOG("get events[%u]", EpollEvent.events);
 
-        //for Listener
-        if(ID->isListenerClass()){
+
+        //for TCP Listener
+        if(ID->isTCPListenerClass()){
             if (EpollEvent.events & EPOLLIN)
             {
                 clsTCPListener *pTCPListener = ID->getTCPListenerPtr();

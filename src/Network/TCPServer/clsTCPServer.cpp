@@ -6,7 +6,7 @@
 
 clsTCPServer::clsTCPServer(uint MaximumConnection)
 {
-    m_pEpoll = new clsEpollManager(this, MaximumConnection);
+    m_pEpoll = new clsEpollManager(MaximumConnection);
     m_pSSlSocket = new clsSecureSocket;
 
     //
