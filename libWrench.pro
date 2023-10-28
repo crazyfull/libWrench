@@ -1,4 +1,4 @@
-#DEFINES += libWrenchApp
+DEFINES += libWrenchApp
 
 contains(DEFINES, libWrenchApp){
     message( "Application" )
@@ -16,7 +16,7 @@ contains(DEFINES, libWrenchApp){
     DEFINES += libWrench
     #CONFIG += c++11 staticlib
     TARGET = libWrench
-    VERSION = 1.3.30
+    VERSION = 1.4.1
 }
 
 #c++ 11 & static build
@@ -70,6 +70,11 @@ INCLUDEPATH += $$PWD/src/Network/TCPServer
 DEPENDPATH += $$PWD/src/Network/TCPServer
 
 #source Headers
+INCLUDEPATH += $$PWD/src/Network/UDPServer
+DEPENDPATH += $$PWD/src/Network/UDPServer
+
+
+#source Headers
 INCLUDEPATH += $$PWD/src/Network/DNSLookup
 DEPENDPATH += $$PWD/src/Network/DNSLookup
 
@@ -99,6 +104,8 @@ SOURCES += main.cpp \
     src/Network/TCPServer/clsTCPListener.cpp \
     src/Network/TCPServer/clsTCPServer.cpp \
     src/Network/TCPServer/clsTCPSocket.cpp \
+    src/Network/UDPServer/clsUDPListener.cpp \
+    src/Network/UDPServer/clsUDPServer.cpp \
     src/Network/pipe/clsPipe.cpp \
     src/cJSON/cJSON.c \
     src/clsCString.cpp \
@@ -131,6 +138,8 @@ HEADERS +=  src/clsThread.h \
     src/Network/TCPServer/clsTCPListener.h \
     src/Network/TCPServer/clsTCPServer.h \
     src/Network/TCPServer/clsTCPSocket.h \
+    src/Network/UDPServer/clsUDPListener.h \
+    src/Network/UDPServer/clsUDPServer.h \
     src/Network/pipe/clsPipe.h \
     src/cJSON/cJSON.h \
     src/clsCString.h \
