@@ -16,7 +16,7 @@ void clsUDPSocket::Send(const char *Data, int length)
 {
     int ret = sendto(m_socket, Data, length, MSG_NOSIGNAL, (struct sockaddr*)&m_TargetAddress, sizeof(m_TargetAddress));
     if(ret == ISINVALID) {
-        DebugPrint("sendto");
+        DebugPrint("sendto errno[%d]", ERRNO);
     }
 
 }
