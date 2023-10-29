@@ -25,8 +25,6 @@ private:
     AcceptCallbackType m_Acceptcallback;
     void *m_AcceptcallbackPointer;
 
-    void OnRecieveVisitor();
-
 public:
     clsTCPListener(clsTCPServer *pServer);
     ~clsTCPListener();

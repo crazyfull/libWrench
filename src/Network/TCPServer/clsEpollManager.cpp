@@ -151,26 +151,11 @@ void clsEpollManager::_OnWaitForNewEvenet(clsThread *pTherad)
 
             LOG("IS_UDP_LISTENER[%u]", EpollEvent.events);
 
+
             if (EpollEvent.events & EPOLLIN){
 
                 /*client*/
-                struct sockaddr_in m_TargetAddress;
-                memset(&m_TargetAddress, 0, sizeof(m_TargetAddress));
-
-                /*on receive data*/
-                char buffer[(1024*8)+1];
-                //struct sockaddr_in client_address;
-                socklen_t client_address_length;
-                //memset(&m_TargetAddress, 0, sizeof(m_TargetAddress));
-                int bytes_received = recvfrom(pUDPListener-> GetSocket(), buffer, sizeof(buffer), 0, (struct sockaddr *)&m_TargetAddress, &client_address_length);
-                if (bytes_received < 0) {
-                    DebugPrint("Error receiving datagram");
-                    continue;
-                }
-
-                buffer[bytes_received] = 0;
-                LOG("recvfrom[%s]", buffer);
-
+                pUDPListener->OnReceiveData();
 
                 _MutexLock();
                 ModifySocket(pUDPListener->GetSocket(), pUDPListener->Event());

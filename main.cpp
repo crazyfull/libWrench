@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "clsTCPServer.h"
 #include "clsTCPSocket.h"
+#include "clsUDPSocket.h"
 #include "clsUDPServer.h"
 #include <string>
 #include <clsCString.h>
@@ -64,9 +65,17 @@ static void onThread1(clsThread *pTherad, void* pArg){
     CString_Test();
 }
 
+// typedef void (*UDPCallbackType)(clsUDPListener*, void*, clsUDPClient&, const char*Data, int DataLength);
+static void onReceiveUDPData(clsUDPListener* pListener, void*p, clsUDPSocket& UDPClient, const char*Data, int DataLength){
+    LOG("buffer[%s] udpclient[%s:%d]", Data, UDPClient.getIPAddress(), UDPClient.getPort());
+
+    //replay
+    UDPClient.Send("hello from wrench");
+}
 
 void udp_main(){
-    UDPserver.AddNewListener(8080, nullptr, nullptr,0);
+    //https://www.ipvoid.com/udp-port-scan/
+    UDPserver.AddNewListener(1813, nullptr, nullptr, onReceiveUDPData);
     UDPserver.Start();
     getchar();
     exit(0);
