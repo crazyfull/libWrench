@@ -17,6 +17,7 @@
 using namespace std;
 clsTCPServer Server(800);
 clsUDPServer UDPserver(1000);
+clsUDPSocket m_UDPClient;
 bool enableLinger = false;
 
 
@@ -70,7 +71,8 @@ static void onReceiveUDPData(clsUDPListener* pListener, void*p, clsUDPSocket& UD
     LOG("buffer[%s] udpclient[%s:%d]", Data, UDPClient.getIPAddress(), UDPClient.getPort());
 
     //replay
-    UDPClient.Send("hello from wrench");
+    UDPClient.Send("echo from wrench");
+    m_UDPClient = UDPClient;
 }
 
 void udp_main(){
@@ -78,6 +80,11 @@ void udp_main(){
     UDPserver.AddNewListener(1813, nullptr, nullptr, onReceiveUDPData);
     UDPserver.Start();
     getchar();
+    for(;;){
+        m_UDPClient.Send("hi from wrench");
+        getchar();
+    }
+
     exit(0);
 }
 int main(int ac, char **av)
@@ -124,7 +131,7 @@ int main(int ac, char **av)
 */
 
 
-/*
+    /*
     for(int i = 0; i < 100;i++){
         //clsThread::CreateThread(onThread1, nullptr, 0);
         CString_Test();
@@ -180,7 +187,7 @@ int main(int ac, char **av)
     LOG("openssl version: (%lu), %s", SSLeay(), SSLeay_version(SSLEAY_VERSION));
 
 
-/*
+    /*
     clsTCPSocket *TCP = new clsTCPSocket(&Server);
     for(int i = 0; i < 100;i++){
 
