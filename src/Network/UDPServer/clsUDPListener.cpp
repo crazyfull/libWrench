@@ -100,6 +100,7 @@ bool clsUDPListener::StartListen(uint16_t Port, const char *bindIP, clsEpollMana
         return false;
     }
 
+
     return true;
 }
 
@@ -128,7 +129,7 @@ void clsUDPListener::OnReceiveData()
 
     /*on receive data*/
     char buffer[BUFFER_SIZE+1];
-    socklen_t client_address_length;
+    socklen_t client_address_length= sizeof(clientSource);
     memset(&clientSource, 0, sizeof(clientSource));
     int bytes_received = recvfrom(m_Socket, buffer, sizeof(buffer), MSG_NOSIGNAL, (struct sockaddr *)&clientSource, &client_address_length);
     if (bytes_received < 0) {
