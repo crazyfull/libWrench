@@ -148,10 +148,6 @@ void clsEpollManager::_OnWaitForNewEvenet(clsThread *pTherad)
         if(ID->getIDType() == IS_UDP_LISTENER ){
 
             clsUDPListener *pUDPListener = ID->getUDPListenerPtr();
-
-            LOG("IS_UDP_LISTENER[%u]", EpollEvent.events);
-
-
             if (EpollEvent.events & EPOLLIN){
 
                 /*client*/
@@ -160,11 +156,10 @@ void clsEpollManager::_OnWaitForNewEvenet(clsThread *pTherad)
                 _MutexLock();
                 ModifySocket(pUDPListener->GetSocket(), pUDPListener->Event());
                 _MutexUnlock();
-
                 continue;
             }
 
-
+            LOG("IS_UDP_LISTENER unknown event[%u]", EpollEvent.events);
             continue;
         }
 
