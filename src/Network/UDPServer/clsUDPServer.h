@@ -10,9 +10,11 @@ private:
     clsEpollManager* m_pEpoll;
 
 public:
-    clsUDPServer(uint MaximumConnection);
+    clsUDPServer(uint MaximumConnection = 1024);
+    ~clsUDPServer();
     clsUDPListener *AddNewListener(uint16_t Port, const char *bindIP, void *p, UDPCallbackType UDPCallback);
     void Start();
+    void Stop();
 
 };
 

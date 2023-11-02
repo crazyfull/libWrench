@@ -5,8 +5,8 @@
 
 class clsUDPSocket
 {
-    struct sockaddr_in m_TargetAddress;
     char m_ipSource[INET_ADDRSTRLEN];
+    struct sockaddr_in m_TargetAddress;
     int m_socket;
 
 public:
