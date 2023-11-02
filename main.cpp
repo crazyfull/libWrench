@@ -15,7 +15,7 @@
 //get sockets
 //netstat -n | awk '/^tcp/ {t[$NF]++}END{for(state in t){print state, t[state]} }'
 using namespace std;
-clsTCPServer Server(800);
+//clsTCPServer Server(800);
 clsUDPServer UDPserver(1000);
 clsUDPSocket m_UDPClient;
 bool enableLinger = false;
@@ -24,7 +24,7 @@ bool enableLinger = false;
 static void onAccepClient(clsTCPListener *pListener, void *pParent, int NewSocket)
 {
     LOG("NewSocket(%d)", NewSocket);
-
+/*
     clsTCPSocket *newConnection = new clsTCPSocket(&Server);
     if(newConnection->Accept(NewSocket, true) == false){
 
@@ -35,7 +35,9 @@ static void onAccepClient(clsTCPListener *pListener, void *pParent, int NewSocke
     if(enableLinger)
         clsTCPSocket::SetSocketLinger(NewSocket, 2);   //mohem baraye http
 
-    /*
+
+
+
     newConnection->Send("HTTP/1.1 200 OK\nContent-Type: text/html\nConnection: Closed\n\nlibTCPSERVER");
     /*
     for(int i = 0; i < 1000;i++){
@@ -208,6 +210,7 @@ int main(int ac, char **av)
 
     getchar();
 */
+    /*
     //Server.AddNewListener(8888, "127.0.0.1", nullptr, onAccepClient);
     Server.AddNewListener(8080, nullptr, nullptr, onAccepClient);
     Server.SetCertificateSSL("/home/crow/Downloads/cert/fullchain.cer",
@@ -216,7 +219,7 @@ int main(int ac, char **av)
 
     Server.SetSSLMethod(SSLV2_3);
     Server.Start();
-
+*/
     getchar();
     enableLinger = true;
     getchar();
