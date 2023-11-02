@@ -8,6 +8,11 @@ clsUDPServer::clsUDPServer(uint MaximumConnection)
     m_pEpoll = new clsEpollManager(MaximumConnection);
 }
 
+clsUDPServer::~clsUDPServer()
+{
+    delete m_pEpoll;
+}
+
 clsUDPListener *clsUDPServer::AddNewListener(uint16_t Port, const char *bindIP, void *p, UDPCallbackType UDPCallback)
 {
     clsUDPListener *pListener = new clsUDPListener(this);
@@ -31,4 +36,9 @@ clsUDPListener *clsUDPServer::AddNewListener(uint16_t Port, const char *bindIP, 
 void clsUDPServer::Start()
 {
     m_pEpoll->Start();
+}
+
+void clsUDPServer::Stop()
+{
+    //m_pEpoll.s
 }
