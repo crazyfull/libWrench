@@ -26,11 +26,15 @@ void clsUDPSocket::Send(const char *Data)
     Send(Data, strlen(Data));
 }
 
-const char *clsUDPSocket::getIPAddress()
+const char *clsUDPSocket::getIPAddressDescription()
 {
     inet_ntop(AF_INET, &m_TargetAddress.sin_addr, m_ipSource, sizeof(m_ipSource));
-    //LOG("recvfrom[%s] size[%d] IP[%s:%d]", buffer, bytes_received, ip_source, htons(m_TargetAddress.sin_port));
     return m_ipSource;
+}
+
+uint32_t clsUDPSocket::getIPAddress()
+{
+    return m_TargetAddress.sin_addr.s_addr;
 }
 
 int clsUDPSocket::getPort()

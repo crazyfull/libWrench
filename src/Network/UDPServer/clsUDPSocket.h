@@ -14,7 +14,8 @@ public:
     clsUDPSocket(int socket, sockaddr_in &Address);
     void Send(const char *Data, int length);
     void Send(const char *Data);
-    const char *getIPAddress();
+    const char *getIPAddressDescription();
+    uint32_t getIPAddress();
     int getPort();
 };
 
