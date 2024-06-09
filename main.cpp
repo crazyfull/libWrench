@@ -92,7 +92,17 @@ void udp_main(){
 int main(int ac, char **av)
 {
 
-    udp_main();
+   // udp_main();
+
+    //test compare
+   string n;
+
+   const CString *a = new CString("aaa");
+
+   CString b = *a;
+   //strncmp(a,b);
+   //LOG("itStartsWith: [%d]", CString::itStartsWith(a, strlen(a), b, strlen(b)));
+   return 0;
 
     /*
     if(FileDirectory::CreateDirectory("gooz")){
