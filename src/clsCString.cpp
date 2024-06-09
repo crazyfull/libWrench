@@ -91,7 +91,9 @@ bool CString::isCompare(const char* dest, int destSize)
         return false;
 
     //Compare
-    if (m_Lengh < destSize) return false;
+    if (m_Lengh < destSize)
+        return false;
+
     for(int i = 0; i < destSize; i++)
     {
         if(Buffer[i] != dest[i])
@@ -154,6 +156,45 @@ bool CString::isCompare(const char *dest) const
     if(!dest)
         return false;
     return isCompare(this->Data(), dest);
+}
+
+bool CString::itStartsWith(const char *Source, int SourceSize, const char *dest, int destSize)
+{
+    if(Source == NULL || dest == NULL || SourceSize <= 0 || destSize <= 0) {
+        return false;
+    }
+
+    if (destSize > SourceSize)
+        return false;
+
+    return !strncmp(Source, dest, destSize);
+
+}
+
+bool CString::itStartsWith(const char *dest)
+{
+    return CString::itStartsWith(this->Data(), this->length(), dest, strlen(dest));
+}
+
+bool CString::itStartsWith(const char *dest) const
+{
+    return CString::itStartsWith(this->Data(), this->length(), dest, strlen(dest));
+}
+
+bool CString::itStartsWith(const CString *dest)
+{
+    if(!dest)
+        return false;
+
+    return CString::itStartsWith(this->Data(), this->length(), dest->Data(), dest->length());
+}
+
+bool CString::itStartsWith(const CString *dest) const
+{
+    if(!dest)
+        return false;
+
+    return CString::itStartsWith(this->Data(), this->length(), dest->Data(), dest->length());
 }
 
 char *CString::toLower(char *str)
