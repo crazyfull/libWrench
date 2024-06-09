@@ -18,7 +18,7 @@ private:
     clsEpollManager* m_pEpoll;
     clsSecureSocket* m_pSSlSocket;
 
-    void AddThreadPool(int threadcount);
+
 
 public:
 
@@ -30,7 +30,7 @@ public:
 
     bool AddSocketToEventsPoll(clsTCPSocket *pTCPSocket);
     bool RemoveSocketFromEventsPoll(clsTCPSocket *pTCPSocket);
-
+    void AddThreadPool(int threadcount);
     void SetSocketSendAndReceiveTimeout(int timeSec);
     void SetSocketReceiveBufferSize(int bufferSize);
     void SetSocketSendBufferSize(int bufferSize);
