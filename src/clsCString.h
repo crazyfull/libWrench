@@ -70,6 +70,12 @@ public:
     bool isCompare(const char *dest);
     bool isCompare(const char *dest) const;
 
+    static bool itStartsWith(const char *Source, int SourceSize, const char *dest, int destSize);
+    bool itStartsWith(const char *dest);
+    bool itStartsWith(const char *dest) const;
+    bool itStartsWith(const CString *dest);
+    bool itStartsWith(const CString *dest) const;
+
     static char *toLower(char *str);
     static char *toUper(char *str);
     static CString Replace(const char *Source, int SourceLen, const char *Match, int MatchLen, const char *text, int textLen);
