@@ -16,7 +16,7 @@ contains(DEFINES, libWrenchApp){
     DEFINES += libWrench
     #CONFIG += c++11 staticlib
     TARGET = libWrench
-    VERSION = 1.4.15
+    VERSION = 1.5.4
 }
 
 #c++ 11 & static build
@@ -74,6 +74,10 @@ INCLUDEPATH += $$PWD/src/Network/UDPServer
 DEPENDPATH += $$PWD/src/Network/UDPServer
 
 #source Headers
+INCLUDEPATH += $$PWD/src/Network/UDPClient
+DEPENDPATH += $$PWD/src/Network/UDPClient
+
+#source Headers
 INCLUDEPATH += $$PWD/src/Network/DNSLookup
 DEPENDPATH += $$PWD/src/Network/DNSLookup
 
@@ -103,6 +107,7 @@ SOURCES += main.cpp \
     src/Network/TCPServer/clsTCPListener.cpp \
     src/Network/TCPServer/clsTCPServer.cpp \
     src/Network/TCPServer/clsTCPSocket.cpp \
+    src/Network/UDPClient/UDPClient.cpp \
     src/Network/UDPServer/clsUDPListener.cpp \
     src/Network/UDPServer/clsUDPServer.cpp \
     src/Network/UDPServer/clsUDPSocket.cpp \
@@ -138,6 +143,7 @@ HEADERS +=  src/clsThread.h \
     src/Network/TCPServer/clsTCPListener.h \
     src/Network/TCPServer/clsTCPServer.h \
     src/Network/TCPServer/clsTCPSocket.h \
+    src/Network/UDPClient/UDPClient.h \
     src/Network/UDPServer/clsUDPListener.h \
     src/Network/UDPServer/clsUDPServer.h \
     src/Network/UDPServer/clsUDPSocket.h \
