@@ -1,3 +1,4 @@
+//#include "Network/UDPClient/UDPClient.h"
 #include <openssl/crypto.h>
 #ifdef libWrenchApp
 
@@ -11,6 +12,7 @@
 #include <clsDNSLookup.h>
 #include <log.h>
 #include "clsHash.h"
+#include "UDPClient.h"
 
 //get sockets
 //netstat -n | awk '/^tcp/ {t[$NF]++}END{for(state in t){print state, t[state]} }'
@@ -24,7 +26,7 @@ bool enableLinger = false;
 static void onAccepClient(clsTCPListener *pListener, void *pParent, int NewSocket)
 {
     LOG("NewSocket(%d)", NewSocket);
-/*
+    /*
     clsTCPSocket *newConnection = new clsTCPSocket(&Server);
     if(newConnection->Accept(NewSocket, true) == false){
 
@@ -91,18 +93,20 @@ void udp_main(){
 }
 int main(int ac, char **av)
 {
+    // udp_main();
+    UDPClient udpClient;
+    udpClient.setHost("198.244.189.153");
+    udpClient.setPort(40001);
+    udpClient.setTimeOut(3600);
+    string buff = udpClient.Send("gooz");
 
-   // udp_main();
+
 
     //test compare
-   string n;
 
-   const CString *a = new CString("aaa");
-
-   CString b = *a;
-   //strncmp(a,b);
-   //LOG("itStartsWith: [%d]", CString::itStartsWith(a, strlen(a), b, strlen(b)));
-   return 0;
+    //strncmp(a,b);
+    LOG("udpClient: [%s]", buff.c_str());
+    return 0;
 
     /*
     if(FileDirectory::CreateDirectory("gooz")){

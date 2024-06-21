@@ -9,6 +9,7 @@ class clsUDPSocket
     struct sockaddr_in m_TargetAddress;
     int m_socket;
 
+
 public:
     clsUDPSocket();
     clsUDPSocket(int socket, sockaddr_in &Address);
