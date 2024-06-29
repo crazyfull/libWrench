@@ -81,6 +81,8 @@ static void onReceiveUDPData(clsUDPListener* pListener, void*p, clsUDPSocket& UD
 }
 
 void udp_main(){
+
+
     //https://www.ipvoid.com/udp-port-scan/
     UDPserver.AddNewListener(1813, nullptr, nullptr, onReceiveUDPData);
     UDPserver.Start();
@@ -92,20 +94,14 @@ void udp_main(){
 
     exit(0);
 }
+
+
+
 int main(int ac, char **av)
 {
-    CString ProgramPath = FileDirectory::GetCurrentDir();
+    CString ip = clsTCPServer::getPrimaryIPAddress() ;
 
-    /*
-    for(int i = ProgramPath.length() -1; i >= 0; i--){
-
-        if(ProgramPath.at(i)  == '/'){
-            break;
-        }
-        LOG("for: [%c]", ProgramPath.at(i));
-    }
-*/
-    LOG("ProgramPath: [%s]", ProgramPath.Data());
+    LOG("ip: [%s]", ip.Data());
     return 0;
 
     // udp_main();
