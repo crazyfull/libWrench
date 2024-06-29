@@ -158,6 +158,15 @@ bool CString::isCompare(const char *dest) const
     return isCompare(this->Data(), dest);
 }
 
+const char *CString::at(uint p)
+{
+    if(p > 0 && m_Lengh > 0 && p <= m_Lengh){
+        return &Buffer[p];
+    }else{
+        return nullptr;
+    }
+}
+
 bool CString::itStartsWith(const char *Source, int SourceSize, const char *dest, int destSize)
 {
     if(Source == NULL || dest == NULL || SourceSize <= 0 || destSize <= 0) {
