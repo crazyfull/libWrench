@@ -13,6 +13,7 @@
 #include <log.h>
 #include "clsHash.h"
 #include "UDPClient.h"
+#include "clsFileDirectory.h"
 
 //get sockets
 //netstat -n | awk '/^tcp/ {t[$NF]++}END{for(state in t){print state, t[state]} }'
@@ -93,12 +94,26 @@ void udp_main(){
 }
 int main(int ac, char **av)
 {
+    CString ProgramPath = FileDirectory::GetCurrentDir();
+
+    /*
+    for(int i = ProgramPath.length() -1; i >= 0; i--){
+
+        if(ProgramPath.at(i)  == '/'){
+            break;
+        }
+        LOG("for: [%c]", ProgramPath.at(i));
+    }
+*/
+    LOG("ProgramPath: [%s]", ProgramPath.Data());
+    return 0;
+
     // udp_main();
     UDPClient udpClient;
     udpClient.setHost("198.244.189.153");
     udpClient.setPort(40001);
     udpClient.setTimeOut(3600);
-    string buff = udpClient.Send("gooz");
+    string buff = udpClient.SendReceive("gooz");
 
 
 
