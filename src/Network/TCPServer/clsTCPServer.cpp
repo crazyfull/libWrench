@@ -170,7 +170,7 @@ void clsTCPServer::SetSocketLinger(int Timeout)
 const CString clsTCPServer::getPrimaryIPAddress()  {
     struct ifaddrs *interfaces = nullptr;
     struct ifaddrs *temp_addr = nullptr;
-    CString ipAddress = "";
+    CString ipAddress = "0.0.0.0";
 
     // Retrieve the current interfaces - returns 0 on success
     if (getifaddrs(&interfaces) == 0) {
