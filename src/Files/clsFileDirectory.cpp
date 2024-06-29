@@ -203,10 +203,19 @@ long FileDirectory::GetFileSize(const char *FilePath){
 
 CString FileDirectory::GetCurrentDir()
 {
-    CString CurrDirectory;// = (FileDirectory::GetFullProgramPath().Data() - 5);
+    CString CurrDirectory;
     CString ProgramPath = FileDirectory::GetFullProgramPath();
+    int programNameLen = 0;
     if(ProgramPath.isEmpty() == false){
-        CurrDirectory.append(ProgramPath.Data(), ProgramPath.length() - strlen(__progname));
+
+        for(int i = ProgramPath.length() -1; i >= 0; i--){
+            if(ProgramPath.at(i)  == '/'){
+                break;
+            }
+            programNameLen++;
+        }
+
+        CurrDirectory.append(ProgramPath.Data(), ProgramPath.length() - programNameLen);
     }
     return CurrDirectory;
 }
