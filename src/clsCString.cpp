@@ -158,12 +158,13 @@ bool CString::isCompare(const char *dest) const
     return isCompare(this->Data(), dest);
 }
 
-const char *CString::at(uint p)
+ char CString::at(uint p)
 {
+     char ret = 0;
     if(p > 0 && m_Lengh > 0 && p <= m_Lengh){
-        return &Buffer[p];
+        return Buffer[p];
     }else{
-        return nullptr;
+        return ret;
     }
 }
 

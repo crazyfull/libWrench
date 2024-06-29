@@ -69,7 +69,7 @@ public:
     bool isCompare(const CString *dest) const;
     bool isCompare(const char *dest);
     bool isCompare(const char *dest) const;
-    const char *at(uint p);
+    char at(uint p);
 
     static bool itStartsWith(const char *Source, int SourceSize, const char *dest, int destSize);
     bool itStartsWith(const char *dest);
