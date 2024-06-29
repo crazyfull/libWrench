@@ -1,5 +1,6 @@
 ﻿#ifndef CLSTCPSERVER_H
 #define CLSTCPSERVER_H
+#include "clsCString.h"
 #include "clsTCPListener.h"
 #include "clsEpollManager.h"
 #include "clsSecureSocket.h"
@@ -50,6 +51,7 @@ public:
     clsSecureSocket *SSlSocket() const;
     bool SetCertificateSSL(const char *CertPath, const char *KeyPath);
     void SetSSLMethod(SSLMethod value);
+    static const CString getPrimaryIPAddress();
 };
 
 #endif // CLSTCPSERVER_H

@@ -2,6 +2,8 @@
 #include "clsFileDirectory.h"
 #include "clsTCPSocket.h"
 #include "log.h"
+#include <ifaddrs.h>
+#include <net/if.h>
 
 
 clsTCPServer::clsTCPServer(uint MaximumConnection)
@@ -162,5 +164,38 @@ void clsTCPServer::SetSocketKeepAlive(bool isEnable)
 void clsTCPServer::SetSocketLinger(int Timeout)
 {
     m_SocketOptLingerTime = Timeout;
+}
+
+
+const CString clsTCPServer::getPrimaryIPAddress()  {
+    struct ifaddrs *interfaces = nullptr;
+    struct ifaddrs *temp_addr = nullptr;
+    CString ipAddress = "";
+
+    // Retrieve the current interfaces - returns 0 on success
+    if (getifaddrs(&interfaces) == 0) {
+        temp_addr = interfaces;
+        while (temp_addr != nullptr) {
+
+            // Check if it is a valid IP4 Address
+            if (temp_addr->ifa_addr->sa_family == AF_INET) {
+
+                // Skip the loopback interface
+                if (std::strcmp(temp_addr->ifa_name, "lo") != 0) {
+
+                    if (temp_addr->ifa_flags & IFF_RUNNING && !(temp_addr->ifa_flags & IFF_LOOPBACK)) {
+                        ipAddress = inet_ntoa(((struct sockaddr_in*)temp_addr->ifa_addr)->sin_addr);
+                        break;
+                    }
+                    //ipAddress = inet_ntoa(((struct sockaddr_in*)temp_addr->ifa_addr)->sin_addr);
+                    //break;
+                }
+            }
+            temp_addr = temp_addr->ifa_next;
+        }
+    }
+    // Free the memory allocated by getifaddrs
+    freeifaddrs(interfaces);
+    return ipAddress;
 }
 
