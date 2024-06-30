@@ -38,7 +38,7 @@ void sha256_starts(sha256_context * ctx)
 	ctx->state[7] = 0x5BE0CD19;
 }
 
-void sha256_process(sha256_context * ctx, uint8_t data[64])
+void sha256_Process(sha256_context * ctx, uint8_t data[64])
 {
 	uint32_t temp1, temp2;
 	uint32_t W[64];
@@ -187,14 +187,14 @@ void sha256_update(sha256_context * ctx, uint8_t * input, uint32_t length)
 
 	if (left && length >= fill) {
 		memcpy((void *) (ctx->buffer + left), (void *) input, fill);
-		sha256_process(ctx, ctx->buffer);
+        sha256_Process(ctx, ctx->buffer);
 		length -= fill;
 		input += fill;
 		left = 0;
 	}
 
 	while (length >= 64) {
-		sha256_process(ctx, input);
+        sha256_Process(ctx, input);
 		length -= 64;
 		input += 64;
 	}
