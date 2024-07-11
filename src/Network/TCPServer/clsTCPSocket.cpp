@@ -107,7 +107,11 @@ CString clsTCPSocket::GetClientIPString()
 
 CString clsTCPSocket::GetSSLError() const
 {
+#ifdef USE_SSL
     return ERR_error_string(ERR_get_error(), NULL);
+#endif
+
+    return"";
 }
 
 uint32_t clsTCPSocket::GetClientIP()
@@ -376,10 +380,10 @@ void clsTCPSocket::SetSocketLinger(int fd, int Timeout = 0)
         iOption = 1;
 
     struct linger lo =
-    {
-        iOption,
-        Timeout
-    };
+        {
+            iOption,
+            Timeout
+        };
 
     int isErr = setsockopt(fd, SOL_SOCKET, SO_LINGER, &lo, sizeof(lo));
     if(isErr != 0)
@@ -1166,8 +1170,8 @@ void clsTCPSocket::Close(bool isShutdown)
     if (Status == Connected)
         isShutdown = true;
 
-    //isShutdown = false;
-    //clean ssl socket
+//isShutdown = false;
+//clean ssl socket
 #ifdef USE_SSL
     if(m_pClientSSlCtx){
         if(isShutdown == true){

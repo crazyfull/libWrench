@@ -178,17 +178,18 @@ const CString clsTCPServer::getPrimaryIPAddress()  {
         while (temp_addr != nullptr) {
 
             // Check if it is a valid IP4 Address
-            if (temp_addr->ifa_addr->sa_family == AF_INET) {
+            if(temp_addr->ifa_addr){
+                if (temp_addr->ifa_addr->sa_family == AF_INET) {
+                    // Skip the loopback interface
+                    if (std::strcmp(temp_addr->ifa_name, "lo") != 0) {
 
-                // Skip the loopback interface
-                if (std::strcmp(temp_addr->ifa_name, "lo") != 0) {
-
-                    if (temp_addr->ifa_flags & IFF_RUNNING && !(temp_addr->ifa_flags & IFF_LOOPBACK)) {
-                        ipAddress = inet_ntoa(((struct sockaddr_in*)temp_addr->ifa_addr)->sin_addr);
-                        break;
+                        if (temp_addr->ifa_flags & IFF_RUNNING && !(temp_addr->ifa_flags & IFF_LOOPBACK)) {
+                            ipAddress = inet_ntoa(((struct sockaddr_in*)temp_addr->ifa_addr)->sin_addr);
+                            break;
+                        }
+                        //ipAddress = inet_ntoa(((struct sockaddr_in*)temp_addr->ifa_addr)->sin_addr);
+                        //break;
                     }
-                    //ipAddress = inet_ntoa(((struct sockaddr_in*)temp_addr->ifa_addr)->sin_addr);
-                    //break;
                 }
             }
             temp_addr = temp_addr->ifa_next;
