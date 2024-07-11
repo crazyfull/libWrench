@@ -237,6 +237,48 @@ char *CString::toUper(char *str)
     return str;
 }
 
+CString CString::trim(const char *str)
+{
+/*
+' ' (0x20) space (SPC)
+'\t' (0x09) horizontal tab (TAB)
+'\n' (0x0a) newline (LF)
+'\v' (0x0b) vertical tab (VT)
+'\f' (0x0c) feed (FF)
+'\r' (0x0d) carriage return (CR)
+*/
+
+    CString ret;
+    const char *start;
+    const char *end;
+    //char *trimmed_str;
+    size_t trimmed_length;
+
+    // Trim leading space
+    start = str;
+    while (isspace((unsigned char)*start)) start++;
+
+    if (*start == 0) {  // All spaces
+        return ret;
+    }
+
+    // Trim trailing space
+    end = str + strlen(str) - 1;
+    while (end > start && isspace((unsigned char)*end)) end--;
+
+    // Calculate trimmed length and allocate memory for the new string
+    trimmed_length = end - start + 1;
+
+    ret.AddReserveSize(trimmed_length + 1);
+
+    // Copy trimmed content to the new string and add null terminator
+    ret.append(start, trimmed_length);
+    //strncpy(trimmed_str, start, trimmed_length);
+    //trimmed_str[trimmed_length] = '\0';
+
+    return ret;
+}
+
 CString CString::Replace(const char *Source, int SourceLen, const char *Match, int MatchLen, const char *text, int textLen)
 {
     CString ret;

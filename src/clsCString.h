@@ -79,6 +79,7 @@ public:
 
     static char *toLower(char *str);
     static char *toUper(char *str);
+    static CString trim(const char* str);
     static CString Replace(const char *Source, int SourceLen, const char *Match, int MatchLen, const char *text, int textLen);
     static CString Replace(CString *Source, const char *Match, int MatchLen, const char *text, int textLen);
     static CString Replace(CString *Source, const char *Match, const char *text);
