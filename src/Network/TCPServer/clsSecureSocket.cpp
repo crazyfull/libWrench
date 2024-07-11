@@ -12,8 +12,10 @@ clsSecureSocket::clsSecureSocket()
 
     }
 
-    // Initialize the SSL libraries
+// Initialize the SSL libraries
+#ifdef USE_SSL
     OPENSSL_init_ssl(OPENSSL_INIT_NO_LOAD_SSL_STRINGS, NULL);
+#endif
 
     /*
     SSL_load_error_strings();
@@ -29,7 +31,9 @@ clsSecureSocket::~clsSecureSocket()
 
 bool clsSecureSocket::setSSLMethod(SSLMethod value)
 {
+
     bool ret =false;
+#ifdef USE_SSL
     m_SSLMethod = value;
     const SSL_METHOD * method = NULL;
     switch (m_SSLMethod) {
@@ -66,15 +70,17 @@ bool clsSecureSocket::setSSLMethod(SSLMethod value)
 
         //LOG("SSL_CTX_set_ssl_version() %s", SSL_get_version(m_pServerSSlCtx));
     }
+#endif
     return ret;
 }
+
 
 SSL_CTX* clsSecureSocket::CreateSSlCtx() {
     SSL_CTX* pSSLCtx = nullptr;
 #ifdef USE_SSL
     pSSLCtx = SSL_CTX_new(TLS_server_method());
 
-    //SSL_CTX_set_mode(pSSLCtx, SSL_MODE_ENABLE_PARTIAL_WRITE);
+//SSL_CTX_set_mode(pSSLCtx, SSL_MODE_ENABLE_PARTIAL_WRITE);
 
 #endif
     return pSSLCtx;
@@ -89,6 +95,7 @@ void clsSecureSocket::FreeSSlCtx() {
 #endif
 }
 
+#ifdef USE_SSL
 static int verify_callback(int preverify_ok, X509_STORE_CTX *ctx)
 {
     preverify_ok = 1;
@@ -148,6 +155,7 @@ static int verify_callback(int preverify_ok, X509_STORE_CTX *ctx)
       return preverify_ok;
       */
 }
+#endif
 
 bool clsSecureSocket::setSSLConfig(const char* CertPath, const char* KeyPath) {
 #ifdef USE_SSL
