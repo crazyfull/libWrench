@@ -16,7 +16,7 @@ contains(DEFINES, libWrenchApp){
     DEFINES += libWrench
     #CONFIG += c++11 staticlib
     TARGET = libWrench
-    VERSION = 1.5.10
+    VERSION = 1.5.12
 }
 
 #c++ 11 & static build
@@ -27,8 +27,8 @@ CONFIG += c++11 staticlib
 #DEFINES += "NDEBUG"
 #DEFINES += "NONEEDLOG"
 
-DEFINES += USE_SSL
-LIBS += -lssl -lcrypto      #openssl
+#DEFINES += USE_SSL
+#LIBS += -lssl -lcrypto      #openssl
 
 #
 #unix:DESTDIR = /usr/lib/libTCPServer
