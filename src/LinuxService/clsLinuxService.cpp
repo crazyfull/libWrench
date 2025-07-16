@@ -66,6 +66,11 @@ bool LinuxService::CreateService(const char *ServiceName, const char *Descriptio
     StartCMD + ServiceName;
 
     system("systemctl daemon-reload");
+    if(system("systemctl daemon-reload") != 0) {
+        DebugPrint("Failed to reload systemd!");
+        return false;
+    }
+
     system(EnableCMD.Data());
     system(StartCMD.Data());
     return true;
