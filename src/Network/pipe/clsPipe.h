@@ -1,22 +1,34 @@
 #ifndef CLSPIPE_H
 #define CLSPIPE_H
 
+#include <atomic>
 #include <iostream>
+#include <mutex>
 #include <thread>
+
+#define PIPE_BUFFER_SIZE (1 * 1024)
+//#define SOCKET_PATH ("/tmp/")
+#define SOCKET_BASE_DIR ("/tmp/.libwrench/")
+
 
 class clsPipe
 {
-    int m_svSock;
+    int m_listenSock;
     std::thread m_Thread;
+    std::atomic<bool> m_bRunning;
+    std::string m_socketName;
+    std::mutex m_onReadingMutex;
 
+private:
+    void createDirectory();
 protected:
-        void _onReading();
-        static void setSocketPath(struct sockaddr_un *pSockAddr, const char *socketName);
+    void _onListenerThread();
+    static void setSocketPath(struct sockaddr_un *pSockAddr, const char *socketName);
 
 public:
     clsPipe();
     virtual ~clsPipe();
-    bool Listen(const char* socketName);
+    void Listen(const char* socketName);
     void StopListen();
     static int CreateReceiver(const char *socketName);
 
@@ -33,6 +45,7 @@ public:
     //
     virtual void OnPipeReceiveMessage(const char*msg, int msgLenth);
 
+    bool isRunning() const;
 };
 
 #endif // CLSPIPE_H

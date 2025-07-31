@@ -1,5 +1,6 @@
 #include "clsPipe.h"
 #include "log.h"
+#include "clsFileDirectory.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,26 +10,16 @@
 #include <unistd.h>
 #include <sys/un.h>
 
-#define BUFFER_SIZE (1 * 1024)
-#define SOCKET_PATH ("/tmp/")
 
-clsPipe::clsPipe()
+clsPipe::clsPipe(): m_listenSock(0), m_bRunning(false)
 {
-    m_svSock = 0;
+    createDirectory();
 }
 
 clsPipe::~clsPipe()
 {
     killThread();
 }
-
-void clsPipe::OnPipeReceiveMessage(const char *msg, int msgLenth)
-{
-    //
-    //DebugPrint("OnReceiveMessage: [%s]\n", msg);
-    //SendMessage("pipebache", "hi from server");
-}
-
 
 void clsPipe::SetSocketResourceAddr(int fd, bool isEnable)
 {
@@ -66,85 +57,185 @@ void clsPipe::SetSocketShared(int fd, bool isEnable)
 
 }
 
-void clsPipe::setSocketPath(sockaddr_un *pSockAddr, const char *socketName)
-{
-    memcpy(pSockAddr->sun_path, SOCKET_PATH, strlen(SOCKET_PATH));
-    memcpy(pSockAddr->sun_path + strlen(SOCKET_PATH), socketName, strlen(socketName));
+
+void clsPipe::setSocketPath(struct sockaddr_un *pSockAddr, const char *socketName) {
+    std::string fullPath = std::string(SOCKET_BASE_DIR) + socketName;
+    if (fullPath.length() >= sizeof(pSockAddr->sun_path)) {
+        DebugPrint("Socket path too long!");
+        throw std::runtime_error("Socket path too long");
+    }
+    strncpy(pSockAddr->sun_path, fullPath.c_str(), sizeof(pSockAddr->sun_path) - 1);
 }
 
+/*
+void clsPipe::setSocketPath(struct sockaddr_un *pSockAddr, const char *socketName) {
+    memset(pSockAddr->sun_path, 0, sizeof(pSockAddr->sun_path));
+    pSockAddr->sun_path[0] = '\0'; // abstract namespace
+    strncpy(&pSockAddr->sun_path[1], socketName, sizeof(pSockAddr->sun_path) - 2);
+}
+*/
 
-bool clsPipe::Listen(const char *socketName)
+bool clsPipe::isRunning() const
 {
-    if(m_svSock!=0){
-        DebugPrint("socket is not close\n");
-        return false;
+    return m_bRunning;
+}
+
+void clsPipe::createDirectory(){
+
+    if (FileDirectory::isDirectory(SOCKET_BASE_DIR) == false) {
+        if (FileDirectory::CreateDirectory(SOCKET_BASE_DIR, 0700) == false) {
+            DebugPrint("failed to create socket directory: [%s]", strerror(errno));
+        }else{
+            //
+            if (chown(SOCKET_BASE_DIR, getuid(), getgid()) < 0) {
+                DebugPrint("chown failed");
+                throw std::runtime_error("chown failed");
+
+            }
+        }
+    }
+}
+
+void clsPipe::Listen(const char *socketName)
+{
+    if (m_bRunning) {
+        DebugPrint("Listener is already running. Please stop it before restarting.");
+        return;
     }
 
+    if (m_listenSock != 0){
+        DebugPrint("socket is not closed\n");
+        return;
+    }
 
-    if(m_Thread.native_handle() != 0)
+    if (m_Thread.joinable())
         killThread();
 
-    struct sockaddr_un addr;
+    m_socketName = socketName;
+    m_Thread = std::thread([this]() {
+        this->_onListenerThread();
+    });
+    m_bRunning = true;
+    sleep(1);
+}
+
+void clsPipe::_onListenerThread() {
+    while (m_bRunning) {
+        sleep(1);
+
+        struct sockaddr_un addr;
+        // Bind the socket to a path
+        memset(&addr, 0, sizeof(struct sockaddr_un));
+        addr.sun_family = AF_UNIX;  //AF_LOCAL; //AF_UNIX;
+        setSocketPath(&addr, this->m_socketName.c_str());
+
+        //set to varialbe
+        //m_socketPath = addr.sun_path;
+
+        // Create a socket
+        m_listenSock = socket(AF_UNIX, SOCK_DGRAM | SOCK_CLOEXEC, 0); //| SOCK_CLOEXEC
+        if (m_listenSock == -1) {
+            DebugPrint("can not create socket");
+            continue;
+        }
+
+        SetSocketResourceAddr(m_listenSock, true);
+        SetSocketShared(m_listenSock, true);
+
+        if (unlink(addr.sun_path) != 0 && errno != ENOENT) {
+            DebugPrint("can't unlink socket: [%s]", strerror(errno));
+            close(m_listenSock);
+            m_listenSock = 0;
+            continue;
+        }
 
 
-    // Bind the socket to a path
-    memset(&addr, 0, sizeof(struct sockaddr_un));
-    addr.sun_family = AF_UNIX;  //AF_LOCAL; //AF_UNIX;
-    setSocketPath(&addr, socketName);
+        if (bind(m_listenSock, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) == -1) {
+            DebugPrint("can not bind");
+            //StopListen();
+            continue;
+        }
 
-    // Create a socket
-    m_svSock = socket(AF_UNIX, SOCK_DGRAM, 0);
-    if (m_svSock == -1) {
-        DebugPrint("can no create socket");
-        return false;
+        fd_set readfds;
+        struct sockaddr_un client_addr;
+        socklen_t client_len = sizeof(client_addr);
+        char buffer[PIPE_BUFFER_SIZE + 1];
+
+        const int timeout_seconds = 10;  // set timeout
+
+        while (m_bRunning) {
+            FD_ZERO(&readfds);
+            FD_SET(m_listenSock, &readfds);
+
+            struct timeval tv;
+            tv.tv_sec = timeout_seconds;
+            tv.tv_usec = 0;
+
+            int ret = select(m_listenSock + 1, &readfds, NULL, NULL, &tv);
+            if (ret == -1) {
+                if (errno == EINTR) {
+                    // سیگنالی باعث قطع select شده، قابل چشم‌پوشیه
+                    continue;
+                }
+
+                // خطای select
+                perror("select error");
+                DebugPrint("select error: [%s]", strerror(errno));
+                close(m_listenSock);
+                m_listenSock = -1;
+                break; // یا continue، بسته به شرایط برنامه
+            } else if (ret == 0) {
+                // timeout: هیچ داده‌ای برای خواندن نبود
+                // اینجا می‌تونی کاری بکنی مثل چک کردن وضعیت یا صرفاً حلقه رو ادامه بدی
+                continue;
+            }
+
+            if (FD_ISSET(m_listenSock, &readfds)) {
+                ssize_t bytes_read = recvfrom(m_listenSock, buffer, PIPE_BUFFER_SIZE, 0,  (struct sockaddr*)&client_addr, &client_len);
+                if (bytes_read < 0) {
+                    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                        // داده‌ای نیست، دوباره ادامه بده
+                        continue;
+                    }
+                    perror("recvfrom error");
+                    DebugPrint("recvfrom error: [%s]", strerror(errno));
+                    break;
+                } else if (bytes_read == 0) {
+                    // اتصال بسته شده (برای سوکت دایرکتوری احتمال کمتر)
+                    DebugPrint("recvfrom returned 0, connection closed? error: [%s]", strerror(errno));
+                    break;
+                }
+
+                buffer[bytes_read] = '\0';
+
+                // اگر نیاز به محافظت همزمانی هست:
+                {
+                    std::lock_guard<std::mutex> lock(m_onReadingMutex);
+                    OnPipeReceiveMessage(buffer, bytes_read);
+                }
+            }
+        }
+
     }
 
-    SetSocketResourceAddr(m_svSock, true);
-    SetSocketShared(m_svSock, true);
+}
 
+void clsPipe::StopListen() {
+    if (!m_bRunning)
+        return;
 
-    remove(addr.sun_path);
-    if (bind(m_svSock, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) == -1) {
-        DebugPrint("cann not bind");
-        StopListen();
-        return false;
+    DebugPrint("StopListen()");
+    m_bRunning = false;
+
+    if (m_listenSock > 0) {
+        close(m_listenSock);
+        m_listenSock = 0;
     }
 
-    // Read data from the client
-    m_Thread = std::thread(onThread, this);
-    //onThread(this);
-    return true;
-}
-
-void clsPipe::StopListen()
-{
-    close(m_svSock);
-    m_svSock = 0;
-}
-
-
-void clsPipe::onThread(void *p)
-{
-    clsPipe *pThis = static_cast<clsPipe*>(p);
-    pThis->_onReading();
-
-}
-
-void clsPipe::killThread(){
-    std::thread::native_handle_type thID = m_Thread.native_handle();
-
-#ifdef _WIN32
-    //in win32
-    if(thID){
-        TerminateThread(thID, 1);
+    if (m_Thread.joinable())
         m_Thread.join();
-    }
-#else
-    if(thID > 0){
-        pthread_cancel(thID);
-        m_Thread.join();
-    }
-#endif
+
+    sleep(1);
 }
 
 void clsPipe::SendMessage(const char *socketName, const char *msg)
@@ -171,13 +262,21 @@ void clsPipe::SendMessage(const char *socketName, const char *msg, int msgLength
     addr.sun_family = AF_UNIX;
     setSocketPath(&addr, socketName);
 
+    if (access(addr.sun_path, F_OK) != 0) {
+        DebugPrint("sendto skipped: socket path does not exist [%s]", addr.sun_path);
+        close(sockfd);
+        return;
+    }
+
     // send msg
-    ssize_t bytes_written = sendto(sockfd, msg, msgLength, MSG_CONFIRM, (struct sockaddr *)&addr, sizeof(addr));
+    ssize_t bytes_written = sendto(sockfd, msg, msgLength, 0, (struct sockaddr *)&addr, sizeof(addr));
     if (bytes_written == -1) {
-        DebugPrint("sendto error: [%s]", strerror(errno));
+        DebugPrint("sendto error: socketName[%s] path[%s] errno[%s]", socketName, addr.sun_path ,strerror(errno));
     } else if (bytes_written != msgLength) {
         DebugPrint("partial message sent, expected: [%d], sent: [%zd]", msgLength, bytes_written);
     }
+
+    //DebugPrint("sendto debug: socketName[%s] path[%s] errno[%s]", socketName, addr.sun_path ,strerror(errno));
 
     //
     if (close(sockfd) != 0) {
@@ -190,12 +289,12 @@ int clsPipe::CreateReceiver(const char *socketName) {
     int recSock = 0;
     struct sockaddr_un addr;
 
-    //
+    //init
     memset(&addr, 0, sizeof(struct sockaddr_un));
     addr.sun_family = AF_UNIX;
     setSocketPath(&addr, socketName);
 
-    //
+    //create socket
     recSock = socket(AF_UNIX, SOCK_DGRAM, 0);
     if (recSock == -1) {
         DebugPrint("can not create socket: [%s]", strerror(errno));
@@ -205,8 +304,12 @@ int clsPipe::CreateReceiver(const char *socketName) {
     SetSocketResourceAddr(recSock, true);
     SetSocketShared(recSock, true);
 
-    //
-    remove(addr.sun_path);
+    //unlink socket file
+    if (unlink(addr.sun_path) != 0 && errno != ENOENT) {
+        DebugPrint("can't unlink socket: %s", strerror(errno));
+        close(recSock);
+        return -1;
+    }
 
     //
     if (bind(recSock, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) == -1) {
@@ -226,12 +329,12 @@ std::string clsPipe::ReceiveMessage(const char *socketName, int sock, int Timeou
 
     struct sockaddr_un client_addr;
     socklen_t client_len = sizeof(client_addr);
-    char buffer[BUFFER_SIZE + 1] = {0};
+    char buffer[PIPE_BUFFER_SIZE + 1] = {0};
 
-    ssize_t bytes_read = recvfrom(sock, buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *)&client_addr, &client_len);
+    ssize_t bytes_read = recvfrom(sock, buffer, PIPE_BUFFER_SIZE, 0, (struct sockaddr *)&client_addr, &client_len);
 
     if (bytes_read == -1) {
-        DebugPrint("sockd: [%d] recvfrom error: [%s]", sock, strerror(errno));
+        DebugPrint("recvfrom error: sockd:[%d] socketName[%s%s] error: [%s]", sock, SOCKET_BASE_DIR, socketName,  strerror(errno));
     } else if (bytes_read == 0) {
         DebugPrint("sockd: [%d] recvfrom returned 0 (connection closed)", sock);
     } else {
@@ -239,13 +342,17 @@ std::string clsPipe::ReceiveMessage(const char *socketName, int sock, int Timeou
         ret.append(buffer, bytes_read);
     }
 
-    std::string sockpath = SOCKET_PATH;
+    std::string sockpath = SOCKET_BASE_DIR;
     sockpath.append(socketName);
+    //DebugPrint("recvfrom ddd: sockd:[%d] socketName[%s%s] error: [%s]", sock, SOCKET_BASE_DIR, socketName,  strerror(errno));
 
-    if (remove(sockpath.c_str()) != 0) {
-        DebugPrint("sockd: [%d] failed to remove socket file: [%s]", sock, strerror(errno));
+
+    if (unlink(sockpath.c_str()) != 0) {
+        DebugPrint("sockd: [%d] failed to unlink socket file: [%s]", sock, strerror(errno));
     }
 
+
+    shutdown(sock, SHUT_RDWR);
     if (close(sock) != 0) {
         DebugPrint("sockd: [%d] failed to close socket: [%s]", sock, strerror(errno));
     }
@@ -253,30 +360,19 @@ std::string clsPipe::ReceiveMessage(const char *socketName, int sock, int Timeou
     return ret;
 }
 
-
-
-void clsPipe::_onReading()
+void clsPipe::OnPipeReceiveMessage(const char *msg, int msgLenth)
 {
-    struct sockaddr_un client_addr;
-    socklen_t client_len = sizeof(client_addr);
-
-    for(;;){
-        char buffer[BUFFER_SIZE+1] = {0};
-        ssize_t bytes_read = recvfrom(m_svSock, buffer, BUFFER_SIZE, MSG_WAITALL,  (struct sockaddr *)&client_addr, &client_len);
-        if (bytes_read == -1 || bytes_read == 0) {
-            DebugPrint("sockd: [%d] recvfrom error: [%s]", m_svSock, strerror(errno));
-            break;
-        }else{
-            buffer[bytes_read] = 0;
-            OnPipeReceiveMessage(buffer, bytes_read);
-        }
-    }
-
-    // Close the server socket
-    StopListen();
+    //
+    DebugPrint("OnReceiveMessage: [%s]\n", msg);
+    //replay
+    SendMessage(msg, "hi from server");
 }
 
 
-
-
-
+void clsPipe::killThread() {
+    m_bRunning = false;
+    if (m_Thread.joinable()) {
+        m_Thread.join();
+    }
+    StopListen();
+}
