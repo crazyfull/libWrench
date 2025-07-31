@@ -160,8 +160,8 @@ void clsTCPListener::StopListen()
 {
     m_pEpollManage->RemoveSocket(m_Socket);
     close(m_Socket);
-    LOG("StopListen [%d]", m_Port)
-            delete this;
+    LOG("StopListen [%d]", m_Port);
+    delete this;
 }
 
 int clsTCPListener::GetSocket() const

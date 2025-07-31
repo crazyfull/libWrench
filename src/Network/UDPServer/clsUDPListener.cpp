@@ -49,7 +49,7 @@ bool clsUDPListener::StartListen(uint16_t Port, const char *bindIP, clsEpollMana
     //clsTCPSocket::SetSocketSendAndReceiveTimeOut(m_Socket, 3);
 
     //set timeout
-/*
+    /*
     if(m_pTCPServer->getSocketOptSendRecTimeout() > 0)
         clsTCPSocket::SetSocketSendAndReceiveTimeOut(m_Socket, m_pTCPServer->getSocketOptSendRecTimeout());
 
@@ -108,7 +108,7 @@ void clsUDPListener::StopListen()
 {
     m_pEpollManage->RemoveSocket(m_Socket);
     close(m_Socket);
-    LOG("StopListen [%d]", m_Port)
+    LOG("StopListen [%d]", m_Port);
     delete this;
 }
 
