@@ -16,7 +16,7 @@ contains(DEFINES, libWrenchApp){
     DEFINES += libWrench
     #CONFIG += c++11 staticlib
     TARGET = libWrench
-    VERSION = 1.5.14
+    #DEFINES += WRENCH_VERSION_STR=\\\"1.6.9\\\" move to version.h file
 }
 
 #c++ 11 & static build
@@ -153,7 +153,8 @@ HEADERS +=  src/clsThread.h \
     src/clsThreadTimer.h \
     src/iniSettings/ConvertUTF.h \
     src/iniSettings/SimpleIni.h \
-    src/log.h
+    src/log.h \
+    src/version.h
 
 
 ###################################################################
