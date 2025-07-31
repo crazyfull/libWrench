@@ -31,9 +31,9 @@ FileDirectory::FileDirectory()
 
 }
 
-bool FileDirectory::CreateDirectory(const char *FolderName)
+bool FileDirectory::CreateDirectory(const char *FolderName, unsigned int permission)
 {
-    if(mkdir(FolderName, 0777) == 0){
+    if(mkdir(FolderName, permission) == 0){
         return true;
     }
     return false;

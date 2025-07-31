@@ -19,7 +19,7 @@ class FileDirectory
 {
 public:
     FileDirectory();
-    static bool CreateDirectory(const char *FolderName);
+    static bool CreateDirectory(const char *FolderName, unsigned int permission = 0777);
     static bool isExistDirOrFile(const char *FilePath);
     static bool isDirectory(const char *path);
     static long GetFileSize(const char *FilePath);
