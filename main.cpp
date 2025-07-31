@@ -1,5 +1,6 @@
 //#include "Network/UDPClient/UDPClient.h"
 #include <openssl/crypto.h>
+#include <random>
 #ifdef libWrenchApp
 
 #include <stdio.h>
@@ -7,6 +8,7 @@
 #include "clsTCPSocket.h"
 #include "clsUDPSocket.h"
 #include "clsUDPServer.h"
+#include "Network/pipe/clsPipe.h"
 #include <string>
 #include <clsCString.h>
 #include <clsDNSLookup.h>
@@ -97,7 +99,7 @@ void udp_main(){
 
 
 
-int main(int ac, char **av)
+int main1(int ac, char **av)
 {
     CString ip = clsTCPServer::getPrimaryIPAddress() ;
 
@@ -250,5 +252,98 @@ int main(int ac, char **av)
     getchar();
     return 0;
 }
+
+//example to use
+//pipe main
+#include <sys/wait.h>
+
+int rrandom(){
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    // تعریف محدوده توزیع
+    std::uniform_int_distribution<> dist(1000, 10000);
+
+    // تولید عدد تصادفی
+    int random_num = dist(gen);
+    return random_num;
+}
+
+void SendReceive(){
+    //client
+    LOG("sending message to server...");
+    //create uniq socket name
+    CString requestID = cryptography::clsHash::GenerateRandomString(16);
+
+    //create requestID
+    int ReceiverFD = clsPipe::CreateReceiver(requestID.Data());
+    LOG("ReceiverFD: %d", ReceiverFD);
+
+
+    //cretae packet
+    string pck = requestID.Data();
+    //send packet with pipe to pipe server
+    clsPipe::SendMessage("RadiuSSHParent", pck.c_str(), pck.length());
+
+    //receive answer message from pipe server
+    string msg = clsPipe::ReceiveMessage(requestID.Data(), ReceiverFD, 2);  // 5secound
+    LOG("the message server [%s]", msg.c_str());
+}
+
+int main(int ac, char **av)
+{
+    pid_t pid = fork();
+    if (pid == -1) {
+        DebugPrint("Failed to fork: %s", strerror(errno));
+        return 1;
+    }
+
+    //server
+    if (pid == 0) {
+        sleep(1);
+
+        for(int i = 0; i < 3; i++){
+            //LOG("loop()");
+            if(fork() == 0){
+
+                while(1) {
+                    LOG("Child process created (PID: %d, Parent PID: %d)", getpid(), getppid());
+                    //usleep(rrandom());
+                    SendReceive();
+                    //usleep(100);
+                }
+                //sleep(1);
+                exit(0);
+
+            }else{
+
+                //
+                //SendReceive();
+                wait(NULL);
+                exit(0);
+            }
+
+        }
+
+    }else{
+
+        clsPipe srver;
+        for(;;){
+            srver.Listen("RadiuSSHParent");
+            sleep(2);
+            srver.StopListen();
+            //sleep(1);
+            //srver.Listen("RadiuSSHParent");
+
+        }
+
+        getchar();
+        wait(NULL);
+        LOG("end listener...");
+    }
+
+
+}
+
 
 #endif
