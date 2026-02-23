@@ -3,6 +3,7 @@
 #include "version"
 #include <cstring>
 #include <cstdio>
+#include <unistd.h>
 
 #define DEBUG_FILE_NAME ([]() -> const char* { \
     const char* slash = strrchr(__FILE__, '/'); \
@@ -44,20 +45,26 @@
 #endif
 
 #define LOG_COLOR(color, ...) do { \
-    const char* color_code = ""; \
-    switch (color) { \
-        case Red:    color_code = "\033[31m"; break; \
-        case Green:  color_code = "\033[32m"; break; \
-        case Yellow: color_code = "\033[33m"; break; \
-        case Blue:   color_code = "\033[34m"; break; \
-        case Black:  color_code = "\033[30m"; break; \
-        case White:  color_code = "\033[37m"; break; \
+    if (!isatty(STDOUT_FILENO)) { \
+            /* NOT a terminal → behave exactly like LOG */ \
+            printf(__VA_ARGS__); \
+            printf("\n"); \
+    } else { \
+            const char* color_code = ""; \
+            switch (color) { \
+            case Red:    color_code = "\033[31m"; break; \
+            case Green:  color_code = "\033[32m"; break; \
+            case Yellow: color_code = "\033[33m"; break; \
+            case Blue:   color_code = "\033[34m"; break; \
+            case Black:  color_code = "\033[30m"; break; \
+            case White:  color_code = "\033[37m"; break; \
+        } \
+            printf("%s", color_code); \
+            printf(__VA_ARGS__); \
+            printf("\033[0m\n"); \
     } \
-    printf("%s", color_code); \
-    printf(__VA_ARGS__); \
-    printf("\033[0m\n"); \
-    fflush(stdout); \
-} while(0)
+        fflush(stdout); \
+    } while(0)
 
 #define ZERO (0)
 
