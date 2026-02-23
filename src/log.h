@@ -12,14 +12,17 @@
 })()
 
 #ifdef NDEBUG
-    #define DebugPrint(...) (void)0
+#define DebugPrint(...) (void)0
 #else
-    #define DebugPrint(...) do { \
+#define DebugPrint(...) do { \
+if (isatty(STDOUT_FILENO)) \
         printf("\033[1;32m<%s::%s>\033[0m ", DEBUG_FILE_NAME, __func__); \
-        printf(__VA_ARGS__); \
-        printf("\n"); \
-        fflush(stdout); \
-    } while(0)
+    else \
+    printf("<%s::%s> ", DEBUG_FILE_NAME, __func__); \
+    printf(__VA_ARGS__); \
+    printf("\n"); \
+    fflush(stdout); \
+} while(0)
 #endif
 
 #ifdef NONEEDLOG
