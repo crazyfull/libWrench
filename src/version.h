@@ -2,7 +2,7 @@
 #define VERSION_H
 
 #define WRENCH_STR "libWrench"
-#define WRENCH_VERSION_STR WRENCH_STR "1.6.12"
+#define WRENCH_VERSION_STR WRENCH_STR "1.6.13"
 
 #if defined(__x86_64__) || defined(_M_X64)
 #define ARCH_BUILD "x86_64"
