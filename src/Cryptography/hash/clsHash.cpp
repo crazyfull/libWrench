@@ -1,7 +1,6 @@
 #include "clsHash.h"
 #include <stdlib.h>
 #include <time.h>
-#include "log.h"
 #include "md5.h"
 #include "sha1.h"
 #include "sha256.h"

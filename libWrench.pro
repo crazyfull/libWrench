@@ -113,10 +113,12 @@ SOURCES += main.cpp \
     src/Network/UDPServer/clsUDPSocket.cpp \
     src/Network/pipe/clsPipe.cpp \
     src/cJSON/cJSON.c \
+    src/clsAppController.cpp \
     src/clsCString.cpp \
     src/clsThread.cpp \
     src/clsThreadTimer.cpp \
-    src/iniSettings/ConvertUTF.c
+    src/iniSettings/ConvertUTF.c \
+    src/log.cpp
 
 
 
@@ -149,6 +151,7 @@ HEADERS +=  src/clsThread.h \
     src/Network/UDPServer/clsUDPSocket.h \
     src/Network/pipe/clsPipe.h \
     src/cJSON/cJSON.h \
+    src/clsAppController.h \
     src/clsCString.h \
     src/clsThreadTimer.h \
     src/iniSettings/ConvertUTF.h \

@@ -3,7 +3,6 @@
 #include "base64.h"
 #include "clsCString.h"
 #include <string.h>
-#include "log.h"
 
 clsBase64::clsBase64()
 {

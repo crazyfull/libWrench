@@ -3,8 +3,6 @@
 
 #define MAX_BASE65_SIZE 256
 
-#include "clsCString.h"
-
 class CString;
 class clsBase64
 {

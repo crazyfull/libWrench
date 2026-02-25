@@ -1,9 +1,10 @@
-#ifndef LOGING_H
-#define LOGING_H
-#include "version"
+#ifndef LOGGING_H
+#define LOGGING_H
+
 #include <cstring>
 #include <cstdio>
 #include <unistd.h>
+#include <stdarg.h>
 
 #define DEBUG_FILE_NAME ([]() -> const char* { \
     const char* slash = strrchr(__FILE__, '/'); \
@@ -15,64 +16,73 @@
 #define DebugPrint(...) (void)0
 #else
 #define DebugPrint(...) do { \
-if (isatty(STDOUT_FILENO)) \
+    if (isatty(STDOUT_FILENO)) { \
         printf("\033[1;32m<%s::%s>\033[0m ", DEBUG_FILE_NAME, __func__); \
-    else \
-    printf("<%s::%s> ", DEBUG_FILE_NAME, __func__); \
+    } else { \
+        printf("<%s::%s> ", DEBUG_FILE_NAME, __func__); \
+    } \
     printf(__VA_ARGS__); \
     printf("\n"); \
     fflush(stdout); \
 } while(0)
 #endif
 
-#ifdef NONEEDLOG
-    #define LOG(...) (void)0
+typedef enum {
+    LOG_TRACE,
+    LOG_DEBUG,
+    LOG_INFO,
+    LOG_WARN,
+    LOG_ERROR,
+    LOG_OFF
+} LogLevel;
+
+// ⬇️ فقط اعلان – تعریف منتقل شد به cpp
+extern LogLevel current_log_level;
+
+void set_log_level(LogLevel level);
+
+enum Color {
+    Red,
+    Green,
+    Blue,
+    Yellow,
+    Black,
+    White
+};
+
+void log_level(LogLevel level, enum Color color, int bold, const char* fmt, ...);
+
+#define LOG_LEVEL(level, color, bold, fmt, ...) log_level(level, color, bold, fmt, ##__VA_ARGS__)
+
+#define LOG(fmt, ...) LOG_LEVEL(LOG_TRACE, White, 0, fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) LOG_LEVEL(LOG_DEBUG, Green, 0, fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...)  LOG_LEVEL(LOG_INFO, Blue, 0, fmt, ##__VA_ARGS__)
+#define LOG_WARN(fmt, ...)  LOG_LEVEL(LOG_WARN, Yellow, 1, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) LOG_LEVEL(LOG_ERROR, Red, 1, fmt, ##__VA_ARGS__)
+
+#define LOG_COLOR(color, fmt, ...)  LOG_LEVEL(LOG_INFO, color, 0, fmt, ##__VA_ARGS__)
+#define LOG_COLOR_BOLD(color, bold, fmt, ...)  LOG_LEVEL(LOG_INFO, color, bold, fmt, ##__VA_ARGS__)
+
+#ifdef NDEBUG
+#define DEBUG_PRINT(fmt, ...) (void)0
 #else
-    #define LOG(...) do { \
-        printf(__VA_ARGS__); \
+#define DEBUG_PRINT(fmt, ...) do { \
+    if (current_log_level <= LOG_DEBUG) { \
+        if (isatty(STDOUT_FILENO)) { \
+            printf("\033[1;32m<%s::%s>\033[0m ", DEBUG_FILE_NAME, __func__); \
+        } else { \
+            printf("<%s::%s> ", DEBUG_FILE_NAME, __func__); \
+        } \
+        printf(fmt, ##__VA_ARGS__); \
         printf("\n"); \
         fflush(stdout); \
-    } while(0)
-#endif
-
-#ifndef LOG_COLOR_ENUM_DEFINED
-#define LOG_COLOR_ENUM_DEFINED
-    enum Color {
-        Red,
-        Green,
-        Blue,
-        Yellow,
-        Black,
-        White,
-    };
-#endif
-
-#define LOG_COLOR(color, ...) do { \
-    if (!isatty(STDOUT_FILENO)) { \
-            /* NOT a terminal → behave exactly like LOG */ \
-            printf(__VA_ARGS__); \
-            printf("\n"); \
-    } else { \
-            const char* color_code = ""; \
-            switch (color) { \
-            case Red:    color_code = "\033[31m"; break; \
-            case Green:  color_code = "\033[32m"; break; \
-            case Yellow: color_code = "\033[33m"; break; \
-            case Blue:   color_code = "\033[34m"; break; \
-            case Black:  color_code = "\033[30m"; break; \
-            case White:  color_code = "\033[37m"; break; \
-        } \
-            printf("%s", color_code); \
-            printf(__VA_ARGS__); \
-            printf("\033[0m\n"); \
     } \
-        fflush(stdout); \
-    } while(0)
+} while(0)
+#endif
 
 #define ZERO (0)
-
 #ifndef ISINVALID
 #define ISINVALID (-1)
 #endif
 
-#endif // LOGING_H
+#endif // LOGGING_H
